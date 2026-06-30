@@ -1,0 +1,539 @@
+{
+  "info": {
+    "_postman_id": "smartstudy-v2-collection",
+    "name": "SmartStudy API",
+    "description": "Collection complète de l'API SmartStudy v2 — Spring Boot / JWT",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    { "key": "base_url", "value": "http://localhost:8080", "type": "string" },
+    { "key": "token",     "value": "",                     "type": "string" },
+    { "key": "userId",    "value": "",                     "type": "string" },
+    { "key": "sessionId", "value": "",                     "type": "string" },
+    { "key": "sessionCode","value": "",                    "type": "string" },
+    { "key": "executionId","value": "",                    "type": "string" }
+  ],
+  "item": [
+
+    {
+      "name": "Auth",
+      "item": [
+        {
+          "name": "Register",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": { "raw": "{{base_url}}/api/auth/register", "host": ["{{base_url}}"], "path": ["api","auth","register"] },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"fullName\": \"Yassine Benali\",\n  \"email\": \"yassine.benali@smartstudy.ma\",\n  \"password\": \"Azerty1234!\",\n  \"role\": \"STUDENT\"\n}"
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status is 201\", () => pm.response.to.have.status(201));",
+                  "pm.test(\"Response is JSON\", () => pm.response.to.be.json);",
+                  "const json = pm.response.json();",
+                  "pm.collectionVariables.set(\"token\", json.token);",
+                  "pm.collectionVariables.set(\"userId\", json.id);"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
+        },
+        {
+          "name": "Register (PROF)",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": { "raw": "{{base_url}}/api/auth/register", "host": ["{{base_url}}"], "path": ["api","auth","register"] },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"fullName\": \"Prof. Amina Kettani\",\n  \"email\": \"amina.kettani@smartstudy.ma\",\n  \"password\": \"ProfPass2025!\",\n  \"role\": \"PROF\"\n}"
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status is 201\", () => pm.response.to.have.status(201));",
+                  "pm.test(\"Response is JSON\", () => pm.response.to.be.json);",
+                  "const json = pm.response.json();",
+                  "pm.collectionVariables.set(\"token\", json.token);",
+                  "pm.collectionVariables.set(\"userId\", json.id);"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
+        },
+        {
+          "name": "Login",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": { "raw": "{{base_url}}/api/auth/login", "host": ["{{base_url}}"], "path": ["api","auth","login"] },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"yassine.benali@smartstudy.ma\",\n  \"password\": \"Azerty1234!\"\n}"
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status is 200\", () => pm.response.to.have.status(200));",
+                  "pm.test(\"Response is JSON\", () => pm.response.to.be.json);",
+                  "const json = pm.response.json();",
+                  "pm.collectionVariables.set(\"token\", json.token);",
+                  "pm.collectionVariables.set(\"userId\", json.id);"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
+        }
+      ]
+    },
+
+    {
+      "name": "Users",
+      "item": [
+        {
+          "name": "GET /api/users/me",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+            "url": { "raw": "{{base_url}}/api/users/me", "host": ["{{base_url}}"], "path": ["api","users","me"] }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status is 200 or 201\", () => pm.expect(pm.response.code).to.be.oneOf([200,201]));",
+                  "pm.test(\"Response is JSON\", () => pm.response.to.be.json);"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
+        },
+        {
+          "name": "PUT /api/users/me",
+          "request": {
+            "method": "PUT",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token}}" },
+              { "key": "Content-Type",  "value": "application/json" }
+            ],
+            "url": { "raw": "{{base_url}}/api/users/me", "host": ["{{base_url}}"], "path": ["api","users","me"] },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"fullName\": \"Yassine Benali (mis à jour)\",\n  \"currentPassword\": \"Azerty1234!\",\n  \"newPassword\": \"NouveauPass2025!\"\n}"
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status is 200 or 201\", () => pm.expect(pm.response.code).to.be.oneOf([200,201]));",
+                  "pm.test(\"Response is JSON\", () => pm.response.to.be.json);"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
+        },
+        {
+          "name": "GET /api/users (Admin)",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+            "url": { "raw": "{{base_url}}/api/users", "host": ["{{base_url}}"], "path": ["api","users"] }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status is 200 or 201\", () => pm.expect(pm.response.code).to.be.oneOf([200,201]));",
+                  "pm.test(\"Response is JSON\", () => pm.response.to.be.json);"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
+        },
+        {
+          "name": "DELETE /api/users/{id} (Admin)",
+          "request": {
+            "method": "DELETE",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+            "url": {
+              "raw": "{{base_url}}/api/users/{{userId}}",
+              "host": ["{{base_url}}"],
+              "path": ["api","users","{{userId}}"]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status is 204\", () => pm.response.to.have.status(204));"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
+        }
+      ]
+    },
+
+    {
+      "name": "Sessions",
+      "item": [
+        {
+          "name": "POST /api/sessions/create (PROF)",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token}}" },
+              { "key": "Content-Type",  "value": "application/json" }
+            ],
+            "url": { "raw": "{{base_url}}/api/sessions/create", "host": ["{{base_url}}"], "path": ["api","sessions","create"] },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"title\": \"Cours d'algorithmique — Prof. Amina Kettani\"\n}"
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status is 200 or 201\", () => pm.expect(pm.response.code).to.be.oneOf([200,201]));",
+                  "pm.test(\"Response is JSON\", () => pm.response.to.be.json);",
+                  "const json = pm.response.json();",
+                  "pm.collectionVariables.set(\"sessionId\", json.id);",
+                  "pm.collectionVariables.set(\"sessionCode\", json.joinCode);"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
+        },
+        {
+          "name": "GET /api/sessions/my (PROF)",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+            "url": { "raw": "{{base_url}}/api/sessions/my", "host": ["{{base_url}}"], "path": ["api","sessions","my"] }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status is 200 or 201\", () => pm.expect(pm.response.code).to.be.oneOf([200,201]));",
+                  "pm.test(\"Response is JSON\", () => pm.response.to.be.json);"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
+        },
+        {
+          "name": "GET /api/sessions/{id}",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+            "url": {
+              "raw": "{{base_url}}/api/sessions/{{sessionId}}",
+              "host": ["{{base_url}}"],
+              "path": ["api","sessions","{{sessionId}}"]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status is 200 or 201\", () => pm.expect(pm.response.code).to.be.oneOf([200,201]));",
+                  "pm.test(\"Response is JSON\", () => pm.response.to.be.json);"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
+        },
+        {
+          "name": "PUT /api/sessions/{id}/close (PROF)",
+          "request": {
+            "method": "PUT",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+            "url": {
+              "raw": "{{base_url}}/api/sessions/{{sessionId}}/close",
+              "host": ["{{base_url}}"],
+              "path": ["api","sessions","{{sessionId}}","close"]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status is 200 or 201\", () => pm.expect(pm.response.code).to.be.oneOf([200,201]));",
+                  "pm.test(\"Response is JSON\", () => pm.response.to.be.json);"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
+        },
+        {
+          "name": "POST /api/sessions/join/{code} (STUDENT)",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+            "url": {
+              "raw": "{{base_url}}/api/sessions/join/{{sessionCode}}",
+              "host": ["{{base_url}}"],
+              "path": ["api","sessions","join","{{sessionCode}}"]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status is 200 or 201\", () => pm.expect(pm.response.code).to.be.oneOf([200,201]));",
+                  "pm.test(\"Response is JSON\", () => pm.response.to.be.json);"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
+        }
+      ]
+    },
+
+    {
+      "name": "Code Execution",
+      "item": [
+        {
+          "name": "POST /api/code/execute",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token}}" },
+              { "key": "Content-Type",  "value": "application/json" }
+            ],
+            "url": { "raw": "{{base_url}}/api/code/execute", "host": ["{{base_url}}"], "path": ["api","code","execute"] },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"language\": \"python\",\n  \"code\": \"name = input()\\nprint(f'Bonjour, {name}! Bienvenue sur SmartStudy.')\",\n  \"stdin\": \"Yassine\"\n}"
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status is 200 or 201\", () => pm.expect(pm.response.code).to.be.oneOf([200,201]));",
+                  "pm.test(\"Response is JSON\", () => pm.response.to.be.json);",
+                  "const json = pm.response.json();",
+                  "if (json.id) pm.collectionVariables.set(\"executionId\", json.id);"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
+        },
+        {
+          "name": "POST /api/code/execute (JavaScript)",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token}}" },
+              { "key": "Content-Type",  "value": "application/json" }
+            ],
+            "url": { "raw": "{{base_url}}/api/code/execute", "host": ["{{base_url}}"], "path": ["api","code","execute"] },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"language\": \"javascript\",\n  \"code\": \"const notes = [15, 17, 12, 18];\\nconst moyenne = notes.reduce((a, b) => a + b, 0) / notes.length;\\nconsole.log(`Moyenne : ${moyenne}/20`);\",\n  \"stdin\": \"\"\n}"
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status is 200 or 201\", () => pm.expect(pm.response.code).to.be.oneOf([200,201]));",
+                  "pm.test(\"Response is JSON\", () => pm.response.to.be.json);"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
+        },
+        {
+          "name": "GET /api/code/history",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+            "url": { "raw": "{{base_url}}/api/code/history", "host": ["{{base_url}}"], "path": ["api","code","history"] }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status is 200 or 201\", () => pm.expect(pm.response.code).to.be.oneOf([200,201]));",
+                  "pm.test(\"Response is JSON\", () => pm.response.to.be.json);",
+                  "const json = pm.response.json();",
+                  "if (json.length > 0) pm.collectionVariables.set(\"executionId\", json[0].id);"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
+        }
+      ]
+    },
+
+    {
+      "name": "PDF",
+      "item": [
+        {
+          "name": "POST /api/pdf/summarize",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+            "url": { "raw": "{{base_url}}/api/pdf/summarize", "host": ["{{base_url}}"], "path": ["api","pdf","summarize"] },
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "file",
+                  "type": "file",
+                  "src": "/path/to/your/document.pdf",
+                  "description": "Fichier PDF à résumer (max 50 Mo)"
+                }
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status is 200 or 201\", () => pm.expect(pm.response.code).to.be.oneOf([200,201]));",
+                  "pm.test(\"Response is JSON\", () => pm.response.to.be.json);",
+                  "pm.test(\"Has summary field\", () => {",
+                  "  const json = pm.response.json();",
+                  "  pm.expect(json).to.have.property('summary');",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
+        },
+        {
+          "name": "GET /api/pdf/history",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+            "url": { "raw": "{{base_url}}/api/pdf/history", "host": ["{{base_url}}"], "path": ["api","pdf","history"] }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status is 200 or 201\", () => pm.expect(pm.response.code).to.be.oneOf([200,201]));",
+                  "pm.test(\"Response is JSON\", () => pm.response.to.be.json);"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
+        }
+      ]
+    },
+
+    {
+      "name": "Admin",
+      "item": [
+        {
+          "name": "GET /api/admin/stats",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+            "url": { "raw": "{{base_url}}/api/admin/stats", "host": ["{{base_url}}"], "path": ["api","admin","stats"] }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status is 200 or 201\", () => pm.expect(pm.response.code).to.be.oneOf([200,201]));",
+                  "pm.test(\"Response is JSON\", () => pm.response.to.be.json);",
+                  "pm.test(\"Has stat counters\", () => {",
+                  "  const json = pm.response.json();",
+                  "  pm.expect(json).to.have.all.keys('totalUsers','totalSessions','totalExecutions','totalPdfSummaries');",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
+        }
+      ]
+    },
+
+    {
+      "name": "AI Analysis",
+      "item": [
+        {
+          "name": "GET /api/ai/analyze/{executionId}",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+            "url": {
+              "raw": "{{base_url}}/api/ai/analyze/{{executionId}}",
+              "host": ["{{base_url}}"],
+              "path": ["api","ai","analyze","{{executionId}}"]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status is 200 or 201\", () => pm.expect(pm.response.code).to.be.oneOf([200,201]));",
+                  "pm.test(\"Response is JSON\", () => pm.response.to.be.json);",
+                  "pm.test(\"Has analysis field\", () => {",
+                  "  const json = pm.response.json();",
+                  "  pm.expect(json).to.have.property('analysis');",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
+        }
+      ]
+    }
+
+  ]
+}
