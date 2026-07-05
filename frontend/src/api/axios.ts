@@ -24,6 +24,18 @@ api.interceptors.response.use(
       localStorage.removeItem('ss_user')
       window.location.href = '/login'
     }
+
+    // Validation errors (400) carry the generic message in `message` and the
+    // real per-field reason in `errors` — surface the first field error so
+    // toasts show why the request actually failed, not a generic sentence.
+    const fieldErrors = error.response?.data?.errors
+    if (fieldErrors && typeof fieldErrors === 'object') {
+      const firstFieldError = Object.values(fieldErrors)[0]
+      if (typeof firstFieldError === 'string') {
+        error.response.data.message = firstFieldError
+      }
+    }
+
     return Promise.reject(error)
   }
 )

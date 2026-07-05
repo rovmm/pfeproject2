@@ -6,6 +6,7 @@ import com.example.quizplatforme.DTO.Request.StudentAnswerRequest;
 import com.example.quizplatforme.DTO.Request.SubmitQuizAnswersRequest;
 import com.example.quizplatforme.DTO.Response.*;
 import com.example.quizplatforme.Model.Entity.*;
+import com.example.quizplatforme.Model.Enum.RoleEnum;
 import com.example.quizplatforme.Repository.*;
 import com.example.quizplatforme.Service.IQuizService;
 import com.example.quizplatforme.exception.BadRequestException;
@@ -137,10 +138,15 @@ public class QuizServiceImpl implements IQuizService {
     @Override
     @Transactional(readOnly = true)
     public QuizResponse getQuizForStudent(Long sessionId, String studentEmail) {
-        getUserByEmail(studentEmail); // verify user exists
+        User user = getUserByEmail(studentEmail);
         Quiz quiz = getQuizOrThrow(sessionId);
 
         Session session = quiz.getSession();
+
+        if (user.getRole() == RoleEnum.STUDENT) {
+            verifyStudentEnrolled(session, user);
+        }
+
         if (session.getStatus().name().equals("CLOSED")) {
             throw new BadRequestException("Cette session est fermée.");
         }
@@ -186,6 +192,10 @@ public class QuizServiceImpl implements IQuizService {
 
         User   student = getUserByEmail(studentEmail);
         Quiz   quiz    = getQuizOrThrow(sessionId);
+
+        if (student.getRole() == RoleEnum.STUDENT) {
+            verifyStudentEnrolled(session, student);
+        }
 
         // Validate all options
         for (StudentAnswerRequest a : req.getAnswers()) {
@@ -257,8 +267,12 @@ public class QuizServiceImpl implements IQuizService {
     @Override
     @Transactional(readOnly = true)
     public LeaderboardResponse getLeaderboard(Long sessionId, String callerEmail) {
-        getUserByEmail(callerEmail); // verify caller exists
+        User caller = getUserByEmail(callerEmail);
         Quiz quiz = getQuizOrThrow(sessionId);
+
+        if (caller.getRole() == RoleEnum.STUDENT) {
+            verifyStudentEnrolled(quiz.getSession(), caller);
+        }
 
         List<QuizAttempt> attempts =
                 attemptRepository.findByQuizIdOrderByPercentageDesc(quiz.getId());
@@ -590,6 +604,14 @@ public class QuizServiceImpl implements IQuizService {
         return quizRepository.findBySessionId(sessionId)
                 .orElseThrow(() -> new ResourceNotFoundException(
                         "Aucun quiz trouvé pour cette session."));
+    }
+
+    private void verifyStudentEnrolled(Session session, User student) {
+        boolean enrolled = session.getStudents().stream()
+                .anyMatch(s -> s.getId().equals(student.getId()));
+        if (!enrolled) {
+            throw new ForbiddenException("Accès refusé. Vous n'êtes pas inscrit à cette session.");
+        }
     }
 
     private void verifyProfOwnership(Session session, String email) {

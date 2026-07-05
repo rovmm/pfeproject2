@@ -8,6 +8,8 @@ import { ProfessorDashboard } from './pages/ProfessorDashboard'
 import { ProfessorSession } from './pages/ProfessorSession'
 import { QuizCreator } from './pages/QuizCreator'
 import { StudentSession } from './pages/StudentSession'
+import { StudentQuiz } from './pages/StudentQuiz'
+import { QuizResults } from './pages/QuizResults'
 import { AdminDashboard } from './pages/AdminDashboard'
 import { CodeEditor } from './pages/CodeEditor'
 import { PdfSimplifier } from './pages/PdfSimplifier'
@@ -91,6 +93,22 @@ export default function App() {
           element={
             <ProtectedRoute allowedRoles={['STUDENT']}>
               <StudentSession />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="student/session/:id/quiz"
+          element={
+            <ProtectedRoute allowedRoles={['STUDENT']}>
+              <StudentQuiz />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="student/session/:id/quiz/results"
+          element={
+            <ProtectedRoute allowedRoles={['STUDENT']}>
+              <QuizResults />
             </ProtectedRoute>
           }
         />
