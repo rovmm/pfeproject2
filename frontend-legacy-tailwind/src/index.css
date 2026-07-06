@@ -1,0 +1,186 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Sora:wght@600;700;800&family=JetBrains+Mono:wght@400;500&display=swap');
+@import './styles/tokens.css';
+@import './styles/components.css';
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* ─── Legacy aliases: old code reads var(--color-*); point them at the real tokens ─── */
+:root {
+  --color-bg:       var(--page-bg);
+  --color-sidebar:  var(--surface);
+  --color-card:     var(--surface);
+  --color-border:   var(--border);
+  --color-text:     var(--ink);
+  --color-muted:    var(--ink-muted);
+  --color-primary:  var(--navy);
+  --color-accent:   var(--navy-light);
+
+  --sidebar-width: 240px;
+  --topbar-height: 60px;
+  --radius:        var(--r-lg);
+  --transition:    all 0.3s ease;
+}
+
+/* ─── Reset & Base ───────────────────────────────────────── */
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html {
+  transition: var(--transition);
+  scroll-behavior: smooth;
+}
+
+body {
+  font-family: 'Inter', system-ui, -apple-system, sans-serif;
+  background-color: var(--color-bg);
+  color: var(--color-text);
+  line-height: 1.6;
+  font-size: 14px;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  transition: var(--transition);
+}
+
+code, pre, .font-mono {
+  font-family: 'JetBrains Mono', 'Fira Code', monospace;
+}
+
+h1, h2, h3 {
+  font-family: var(--font-heading);
+  letter-spacing: -0.02em;
+}
+
+/* ─── Scrollbar ──────────────────────────────────────────── */
+::-webkit-scrollbar { width: 6px; height: 6px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: var(--color-border); border-radius: 999px; }
+::-webkit-scrollbar-thumb:hover { background: var(--color-muted); }
+
+/* ─── Selection ──────────────────────────────────────────── */
+::selection { background: var(--tint-indigo); color: inherit; }
+
+/* ─── Component Utilities ────────────────────────────────── */
+@layer components {
+  /* Card */
+  .ss-card {
+    background: var(--color-card);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow-card);
+    transition: var(--transition);
+  }
+  .ss-card:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-card);
+  }
+
+  /* Input */
+  .ss-input {
+    width: 100%;
+    padding: 10px 14px;
+    background: var(--color-bg);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius);
+    color: var(--color-text);
+    font-size: 14px;
+    font-family: inherit;
+    outline: none;
+    transition: var(--transition);
+  }
+  .ss-input::placeholder { color: var(--color-muted); }
+  .ss-input:focus {
+    border-color: var(--color-accent);
+    box-shadow: 0 0 0 3px var(--tint-indigo);
+  }
+
+  /* Sidebar item */
+  .sidebar-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 8px 12px;
+    border-radius: var(--radius);
+    color: var(--color-muted);
+    font-size: 13px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: var(--transition);
+    text-decoration: none;
+    white-space: nowrap;
+  }
+  .sidebar-item:hover {
+    background: var(--tint-indigo);
+    color: var(--color-primary);
+  }
+  .sidebar-item.active {
+    background: var(--tint-indigo);
+    color: var(--color-primary);
+    font-weight: 600;
+  }
+
+  /* Page fade-in */
+  .page-enter {
+    animation: fadeIn 0.3s ease forwards;
+  }
+
+  /* Skeleton shimmer */
+  .skeleton-shimmer {
+    background: linear-gradient(
+      90deg,
+      var(--color-border) 0%,
+      var(--color-card)   50%,
+      var(--color-border) 100%
+    );
+    background-size: 800px 100%;
+    animation: skeleton 1.5s ease-in-out infinite;
+  }
+}
+
+/* ─── Keyframes ──────────────────────────────────────────── */
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(6px); }
+  to   { opacity: 1; transform: translateY(0);   }
+}
+
+@keyframes slideIn {
+  from { opacity: 0; transform: translateX(-8px); }
+  to   { opacity: 1; transform: translateX(0);    }
+}
+
+@keyframes skeleton {
+  0%   { background-position: -400px 0; }
+  100% { background-position:  400px 0; }
+}
+
+@keyframes pulseRing {
+  0%, 100% { box-shadow: 0 0 0 0   rgba(63,111,214,0.7); }
+  50%       { box-shadow: 0 0 0 8px rgba(63,111,214,0);   }
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+/* ─── Monaco Editor overrides ────────────────────────────── */
+.monaco-editor,
+.monaco-editor-background,
+.monaco-editor .margin {
+  border-radius: 0 0 var(--radius) var(--radius) !important;
+}
+
+/* ─── Toast animations ───────────────────────────────────── */
+@keyframes toastIn {
+  from { opacity: 0; transform: translateX(120%); }
+  to   { opacity: 1; transform: translateX(0);    }
+}
+@keyframes toastOut {
+  from { opacity: 1; transform: translateX(0);    }
+  to   { opacity: 0; transform: translateX(120%); }
+}
+.toast-enter { animation: toastIn  0.35s cubic-bezier(0.22,1,0.36,1) forwards; }
+.toast-exit  { animation: toastOut 0.3s ease-in forwards; }

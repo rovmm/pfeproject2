@@ -1,0 +1,131 @@
+:root {
+  /* brand */
+  --navy: #1e3a8a;
+  --navy-light: #2c53ab;
+  --brand-gradient: linear-gradient(135deg, var(--navy), var(--navy-light));
+
+  /* surfaces */
+  --page-bg: #f3e8d3;
+  --canvas-bg: #e6dac2;
+  --surface: #fdf7ec;
+  --surface-alt: #f4ebdb;
+  --surface-muted: #ece1cc;
+
+  /* borders */
+  --border: #e7dcc5;
+  --border-strong: #e4d9c2;
+  --border-input: #d9cdb5;
+  --border-dashed: #a7bce4;
+
+  /* text */
+  --ink: #141427;
+  --ink-secondary: #4a4560;
+  --ink-muted: #8a8271;
+  --ink-faint: #b8ac95;
+  --ink-placeholder: #998e78;
+
+  /* accents (soft tints) */
+  --tint-indigo: #e5ecf8;
+  --tint-indigo-strong: #e9f0fd;
+  --tint-green: #eafaf0;
+  --tint-pink: #fdeaf1;
+  --tint-amber: #fdf3e6;
+
+  /* status */
+  --success: #1f9d5b;
+  --success-bg: #e6f6ee;
+  --success-text: #1a7a48;
+  --error: #e0654a;
+  --error-strong: #c1442a;
+  --error-bg: #fdece9;
+  --error-border: #f6d2c9;
+  --error-input-border: #ef9d8a;
+  --error-input-bg: #fdf5f3;
+  --amber: #e0954a;
+  --amber-strong: #c98a2a;
+  --amber-bg: #fdf3e6;
+  --blue-accent: #3f6fd6;
+  --info-bg: #e9f0fd;
+  --info-border: #c9dbf6;
+  --info-text: #3f6fd6;
+
+  /* code editor dark surface */
+  --editor-bg: #1e1b2e;
+  --editor-header: #26223a;
+  --editor-border: #322c48;
+  --editor-gutter: #211d33;
+  --editor-gutter-text: #565073;
+  --editor-text: #e4e0f4;
+  --editor-muted: #8b82ad;
+  --editor-purple: #c48fff;
+  --editor-blue: #7fd0ff;
+  --editor-orange: #ffb27f;
+  --editor-fn: #7f8fff;
+  --editor-green: #8effa8;
+  --editor-btn-border: #4a4270;
+  --editor-btn-text: #cfc9e6;
+  --editor-btn-bg: #332d4d;
+  --editor-accent-text: #b9a8ff;
+
+  /* radii */
+  --r-sm: 6px;
+  --r-md: 10px;
+  --r-lg: 14px;
+  --r-xl: 18px;
+  --r-2xl: 22px;
+  --r-pill: 999px;
+
+  /* shadows */
+  --shadow-card: 0 16px 34px -26px rgba(43, 36, 80, 0.3);
+  --shadow-btn: 0 10px 22px -8px rgba(91, 83, 224, 0.6);
+  --shadow-btn-strong: 0 18px 34px -12px rgba(30, 58, 138, 0.6);
+
+  /* type */
+  --font-heading: 'Sora', sans-serif;
+  --font-body: 'Inter', sans-serif;
+  --font-mono: 'JetBrains Mono', monospace;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  background: var(--page-bg);
+  font-family: var(--font-body);
+  color: var(--ink);
+  -webkit-font-smoothing: antialiased;
+}
+
+#root {
+  min-height: 100vh;
+}
+
+button,
+input,
+textarea,
+select {
+  font-family: inherit;
+}
+
+a {
+  color: inherit;
+}
+
+::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+::-webkit-scrollbar-thumb {
+  background: var(--surface-muted);
+  border-radius: 999px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}

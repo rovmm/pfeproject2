@@ -1,111 +1,111 @@
-import { useState } from 'react'
-import { Link, useNavigate } from 'react-router-dom'
-import { authApi } from '../api/auth.api'
-import { useAuth } from '../hooks/useAuth'
-import { Button } from '../components/ui/Button'
-import { Card } from '../components/ui/Card'
-import { GraduationCap, Mail, Lock, Loader2, ArrowRight } from 'lucide-react'
+import { useState, type FormEvent } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
+import AuthBrandPanel from '../components/AuthBrandPanel';
+import Icon from '../components/Icon';
+import { useAuth } from '../lib/auth';
 
-export function Login() {
-  const navigate = useNavigate()
-  const { login } = useAuth()
-  const [email, setEmail]     = useState('')
-  const [password, setPassword] = useState('')
-  const [error, setError]       = useState('')
-  const [loading, setLoading]   = useState(false)
+const FEATURES = ['Launch live sessions in one click', 'Run & grade code in real time', 'Auto-scored quizzes & analytics'];
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
-    setLoading(true)
-    setError('')
+export default function Login() {
+  const { loginWithCredentials } = useAuth();
+  const navigate = useNavigate();
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
+  const [error, setError] = useState('');
+  const [loading, setLoading] = useState(false);
+
+  async function handleSubmit(e: FormEvent) {
+    e.preventDefault();
+    if (!/^\S+@\S+\.\S+$/.test(email)) {
+      setError('Enter a valid email address.');
+      return;
+    }
+    if (!password) {
+      setError('Enter your password.');
+      return;
+    }
+    setError('');
+    setLoading(true);
     try {
-      const res = await authApi.login({ email, password })
-      login(res)
-      navigate('/')
+      const user = await loginWithCredentials(email, password);
+      navigate(`/${user.role}`);
     } catch (err: any) {
-      setError(err.response?.data?.message || 'Identifiants invalides')
+      setError(err.response?.data?.message || 'Invalid email or password.');
     } finally {
-      setLoading(false)
+      setLoading(false);
     }
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-[var(--color-bg)] p-6">
-      <div className="w-full max-w-md space-y-8 animate-fade-in">
-        {/* Header */}
-        <div className="text-center space-y-2">
-          <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-primary-500 shadow-lg shadow-primary-500/20 mb-4 animate-float">
-            <GraduationCap className="text-white w-8 h-8" />
-          </div>
-          <h1 className="text-3xl font-bold tracking-tight text-[var(--color-text)]">Bienvenue !</h1>
-          <p className="text-[var(--color-muted)]">Connectez-vous à votre espace SmartStudy</p>
-        </div>
+    <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'var(--page-bg)', padding: 24 }}>
+      <div style={{ width: 1000, maxWidth: '100%', minHeight: 640, display: 'flex', borderRadius: 20, overflow: 'hidden', boxShadow: 'var(--shadow-card)' }}>
+        <AuthBrandPanel heading="Teach, code and quiz — all in one place." body="Sign in to launch live sessions, run code and track every student in real time." features={FEATURES} />
+        <div style={{ flex: 1, background: 'var(--surface)', padding: '56px 52px', display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
+          <h1 style={{ fontFamily: 'var(--font-heading)', fontWeight: 800, fontSize: 28, color: 'var(--ink)', margin: '0 0 6px' }}>Welcome back</h1>
+          <p style={{ fontSize: 14, color: 'var(--ink-muted)', margin: '0 0 24px' }}>Enter your credentials to continue.</p>
 
-        <Card className="p-8 border-[var(--color-border)] shadow-xl bg-[var(--color-card)]/50 backdrop-blur-md">
           {error && (
-            <div className="mb-6 p-4 rounded-xl bg-danger/10 border border-danger/20 text-danger text-sm text-center animate-shake">
-              {error}
+            <div className="toast toast-error" style={{ marginBottom: 20 }}>
+              <Icon name="alert-triangle" size={16} /> {error}
             </div>
           )}
 
-          <form onSubmit={handleSubmit} className="space-y-6">
-            <div className="space-y-2">
-              <label className="text-xs font-semibold text-[var(--color-text)] uppercase tracking-wider">Email</label>
-              <div className="relative group">
-                <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[var(--color-muted)] group-focus-within:text-primary-500 transition-colors" />
-                <input
-                  type="email"
-                  required
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  className="w-full bg-[var(--color-bg)]/50 border border-[var(--color-border)] rounded-xl py-3 pl-10 pr-4 text-sm focus:border-primary-500 focus:ring-1 focus:ring-primary-500 transition-all outline-none"
-                  placeholder="nom@exemple.com"
-                />
-              </div>
+          <form onSubmit={handleSubmit}>
+            <label className="field-label">Email address</label>
+            <div className="input-row" style={{ marginBottom: error && !password ? 18 : 6, ...(error ? { border: '1px solid var(--error-input-border)', background: 'var(--error-input-bg)' } : {}) }}>
+              <span className="input-row-icon" style={error ? { color: 'var(--error)' } : undefined}>
+                <Icon name="mail" size={16} />
+              </span>
+              <input value={email} onChange={(e) => setEmail(e.target.value)} />
             </div>
+            {!error && <div style={{ marginBottom: 12 }} />}
 
-            <div className="space-y-2">
-              <div className="flex justify-between items-center">
-                <label className="text-xs font-semibold text-[var(--color-text)] uppercase tracking-wider">Mot de passe</label>
-                <a href="#" className="text-xs text-primary-500 hover:underline">Oublié ?</a>
-              </div>
-              <div className="relative group">
-                <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[var(--color-muted)] group-focus-within:text-primary-500 transition-colors" />
-                <input
-                  type="password"
-                  required
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  className="w-full bg-[var(--color-bg)]/50 border border-[var(--color-border)] rounded-xl py-3 pl-10 pr-4 text-sm focus:border-primary-500 focus:ring-1 focus:ring-primary-500 transition-all outline-none"
-                  placeholder="••••••••"
-                />
-              </div>
+            <label className="field-label">Password</label>
+            <div className="input-row" style={{ marginBottom: 10 }}>
+              <span className="input-row-icon">
+                <Icon name="lock" size={16} />
+              </span>
+              <input type={showPassword ? 'text' : 'password'} value={password} onChange={(e) => setPassword(e.target.value)} />
+              <span className="input-row-icon" style={{ cursor: 'pointer' }} onClick={() => setShowPassword((s) => !s)}>
+                <Icon name="eye" size={16} />
+              </span>
             </div>
-
-            <Button
-              type="submit"
-              disabled={loading}
-              className="w-full py-4 bg-primary-500 hover:bg-primary-600 text-white rounded-xl font-semibold shadow-lg shadow-primary-500/20 active:scale-[0.98] transition-all flex items-center justify-center gap-2 group"
-            >
+            <div style={{ textAlign: 'right', marginBottom: 22 }}>
+              <a href="#" style={{ fontSize: 13, fontWeight: 600, color: 'var(--navy)', textDecoration: 'none' }}>
+                Forgot password?
+              </a>
+            </div>
+            <button type="submit" className="btn btn-primary btn-lg btn-full" disabled={loading}>
               {loading ? (
-                <Loader2 className="w-4 h-4 animate-spin" />
-              ) : (
                 <>
-                  Connexion
-                  <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+                  <span
+                    style={{
+                      width: 16,
+                      height: 16,
+                      border: '2.5px solid rgba(255,255,255,0.4)',
+                      borderTopColor: '#fff',
+                      borderRadius: '50%',
+                      display: 'inline-block',
+                      animation: 'spin 0.7s linear infinite',
+                    }}
+                  />
+                  Signing in…
                 </>
+              ) : (
+                'Sign in'
               )}
-            </Button>
+            </button>
           </form>
-
-          <p className="mt-8 text-center text-sm text-[var(--color-muted)]">
-            Pas encore de compte ?{' '}
-            <Link to="/register" className="text-primary-500 font-semibold hover:underline">
-              S'inscrire gratuitement
+          <p style={{ textAlign: 'center', fontSize: 13.5, color: 'var(--ink-muted)', margin: '22px 0 0' }}>
+            New here?{' '}
+            <Link to="/register" style={{ fontWeight: 600, color: 'var(--navy)', textDecoration: 'none' }}>
+              Create an account
             </Link>
           </p>
-        </Card>
+        </div>
       </div>
+      <style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>
     </div>
-  )
+  );
 }

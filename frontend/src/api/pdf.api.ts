@@ -12,4 +12,5 @@ export const pdfApi = {
       })
       .then((r) => r.data)
   },
+  history: () => api.get<PdfSummaryResponse[]>('/pdf/history').then((r) => r.data),
 }

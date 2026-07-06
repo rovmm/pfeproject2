@@ -1,150 +1,111 @@
-import { useState } from 'react'
-import { Link, useNavigate } from 'react-router-dom'
-import { authApi } from '../api/auth.api'
-import { useAuth } from '../hooks/useAuth'
-import { Button } from '../components/ui/Button'
-import { Card } from '../components/ui/Card'
-import { GraduationCap, Mail, Lock, User, Loader2, ArrowRight } from 'lucide-react'
+import { useState, type FormEvent } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
+import AuthBrandPanel from '../components/AuthBrandPanel';
+import Icon from '../components/Icon';
+import { useAuth, type Role } from '../lib/auth';
 
-export function Register() {
-  const navigate = useNavigate()
-  const { login } = useAuth()
-  const [fullName, setFullName] = useState('')
-  const [email, setEmail]       = useState('')
-  const [password, setPassword] = useState('')
-  const [role, setRole]         = useState<'STUDENT' | 'PROF'>('STUDENT')
-  const [error, setError]       = useState('')
-  const [loading, setLoading]   = useState(false)
+const FEATURES = ['Live code & quiz sessions', 'AI quiz generation from PDFs', 'Real-time leaderboards'];
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
-    setLoading(true)
-    setError('')
+export default function Register() {
+  const { registerWithCredentials } = useAuth();
+  const navigate = useNavigate();
+  const [role, setRole] = useState<Extract<Role, 'student' | 'professor'>>('student');
+  const [fullName, setFullName] = useState('');
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [error, setError] = useState('');
+  const [loading, setLoading] = useState(false);
+
+  async function handleSubmit(e: FormEvent) {
+    e.preventDefault();
+    setError('');
+    setLoading(true);
     try {
-      const res = await authApi.register({ fullName, email, password, role })
-      login(res)
-      navigate('/')
+      const user = await registerWithCredentials(fullName, email, password, role);
+      navigate(`/${user.role}`);
     } catch (err: any) {
-      setError(err.response?.data?.message || 'Une erreur est survenue')
+      setError(err.response?.data?.message || 'Something went wrong.');
     } finally {
-      setLoading(false)
+      setLoading(false);
     }
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-[var(--color-bg)] p-6">
-      <div className="w-full max-w-lg space-y-8 animate-fade-in">
-        {/* Header */}
-        <div className="text-center space-y-2">
-          <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-primary-500 shadow-lg shadow-primary-500/20 mb-4 animate-float">
-            <GraduationCap className="text-white w-8 h-8" />
-          </div>
-          <h1 className="text-3xl font-bold tracking-tight text-[var(--color-text)]">Créer un compte</h1>
-          <p className="text-[var(--color-muted)]">Rejoignez la communauté SmartStudy</p>
-        </div>
+    <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'var(--page-bg)', padding: 24 }}>
+      <div style={{ width: 1000, maxWidth: '100%', minHeight: 720, display: 'flex', borderRadius: 20, overflow: 'hidden', boxShadow: 'var(--shadow-card)' }}>
+        <AuthBrandPanel width={400} heading="Join thousands of learners & educators." features={FEATURES} />
+        <div style={{ flex: 1, background: 'var(--surface)', padding: '44px 48px', display: 'flex', flexDirection: 'column', overflowY: 'auto' }}>
+          <h1 style={{ fontFamily: 'var(--font-heading)', fontWeight: 800, fontSize: 26, color: 'var(--ink)', margin: '0 0 6px' }}>Create your account</h1>
+          <p style={{ fontSize: 14, color: 'var(--ink-muted)', margin: '0 0 22px' }}>Choose how you'll use SmartStudy.</p>
 
-        <Card className="p-8 border-[var(--color-border)] shadow-xl bg-[var(--color-card)]/50 backdrop-blur-md">
           {error && (
-            <div className="mb-6 p-4 rounded-xl bg-danger/10 border border-danger/20 text-danger text-sm text-center animate-shake">
-              {error}
+            <div className="toast toast-error" style={{ marginBottom: 20 }}>
+              <Icon name="alert-triangle" size={16} /> {error}
             </div>
           )}
 
-          <form onSubmit={handleSubmit} className="space-y-6">
-            <div className="grid grid-cols-2 gap-4">
-              <button
-                type="button"
-                onClick={() => setRole('STUDENT')}
-                className={`py-3 px-4 rounded-xl border text-sm font-medium transition-all ${
-                  role === 'STUDENT'
-                    ? 'bg-primary-500 border-primary-500 text-white shadow-lg shadow-primary-500/20'
-                    : 'bg-[var(--color-bg)]/50 border-[var(--color-border)] text-[var(--color-muted)] hover:border-primary-500/50'
-                }`}
-              >
-                Étudiant
-              </button>
-              <button
-                type="button"
-                onClick={() => setRole('PROF')}
-                className={`py-3 px-4 rounded-xl border text-sm font-medium transition-all ${
-                  role === 'PROF'
-                    ? 'bg-primary-500 border-primary-500 text-white shadow-lg shadow-primary-500/20'
-                    : 'bg-[var(--color-bg)]/50 border-[var(--color-border)] text-[var(--color-muted)] hover:border-primary-500/50'
-                }`}
-              >
-                Professeur
-              </button>
-            </div>
-
-            <div className="space-y-2">
-              <label className="text-xs font-semibold text-[var(--color-text)] uppercase tracking-wider">Nom complet</label>
-              <div className="relative group">
-                <User className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[var(--color-muted)] group-focus-within:text-primary-500 transition-colors" />
-                <input
-                  type="text"
-                  required
-                  value={fullName}
-                  onChange={(e) => setFullName(e.target.value)}
-                  className="w-full bg-[var(--color-bg)]/50 border border-[var(--color-border)] rounded-xl py-3 pl-10 pr-4 text-sm focus:border-primary-500 focus:ring-1 focus:ring-primary-500 transition-all outline-none"
-                  placeholder="Jean Dupont"
-                />
-              </div>
-            </div>
-
-            <div className="space-y-2">
-              <label className="text-xs font-semibold text-[var(--color-text)] uppercase tracking-wider">Email</label>
-              <div className="relative group">
-                <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[var(--color-muted)] group-focus-within:text-primary-500 transition-colors" />
-                <input
-                  type="email"
-                  required
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  className="w-full bg-[var(--color-bg)]/50 border border-[var(--color-border)] rounded-xl py-3 pl-10 pr-4 text-sm focus:border-primary-500 focus:ring-1 focus:ring-primary-500 transition-all outline-none"
-                  placeholder="jean@exemple.com"
-                />
-              </div>
-            </div>
-
-            <div className="space-y-2">
-              <label className="text-xs font-semibold text-[var(--color-text)] uppercase tracking-wider">Mot de passe</label>
-              <div className="relative group">
-                <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[var(--color-muted)] group-focus-within:text-primary-500 transition-colors" />
-                <input
-                  type="password"
-                  required
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  className="w-full bg-[var(--color-bg)]/50 border border-[var(--color-border)] rounded-xl py-3 pl-10 pr-4 text-sm focus:border-primary-500 focus:ring-1 focus:ring-primary-500 transition-all outline-none"
-                  placeholder="••••••••"
-                />
-              </div>
-            </div>
-
-            <Button
-              type="submit"
-              disabled={loading}
-              className="w-full py-4 bg-primary-500 hover:bg-primary-600 text-white rounded-xl font-semibold shadow-lg shadow-primary-500/20 active:scale-[0.98] transition-all flex items-center justify-center gap-2 group"
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 14, marginBottom: 24 }}>
+            <button
+              type="button"
+              className={`session-type-card ${role === 'student' ? 'session-type-card-selected' : ''}`}
+              onClick={() => setRole('student')}
+              style={{ borderRadius: 16, flexDirection: 'column', alignItems: 'flex-start', gap: 0 }}
             >
-              {loading ? (
-                <Loader2 className="w-4 h-4 animate-spin" />
-              ) : (
-                <>
-                  Créer mon compte
-                  <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
-                </>
+              {role === 'student' && (
+                <span style={{ position: 'absolute', top: 12, right: 12, width: 20, height: 20, borderRadius: '50%', background: 'var(--navy)', color: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                  <Icon name="check" size={11} />
+                </span>
               )}
-            </Button>
-          </form>
+              <div className="session-type-icon" style={{ marginBottom: 12 }}>
+                <Icon name="grad-cap" size={20} />
+              </div>
+              <div style={{ fontFamily: 'var(--font-heading)', fontWeight: 700, fontSize: 15, color: 'var(--ink)' }}>Student</div>
+              <div style={{ fontSize: 12, color: 'var(--ink-muted)', marginTop: 3, lineHeight: 1.4 }}>Join sessions, code &amp; take quizzes</div>
+            </button>
+            <button
+              type="button"
+              className={`session-type-card ${role === 'professor' ? 'session-type-card-selected' : ''}`}
+              onClick={() => setRole('professor')}
+              style={{ borderRadius: 16, flexDirection: 'column', alignItems: 'flex-start', gap: 0 }}
+            >
+              <div className="session-type-icon" style={{ marginBottom: 12 }}>
+                <Icon name="user-check" size={20} />
+              </div>
+              <div style={{ fontFamily: 'var(--font-heading)', fontWeight: 700, fontSize: 15, color: 'var(--ink)' }}>Professor</div>
+              <div style={{ fontSize: 12, color: 'var(--ink-muted)', marginTop: 3, lineHeight: 1.4 }}>Create sessions &amp; track students</div>
+            </button>
+          </div>
 
-          <p className="mt-8 text-center text-sm text-[var(--color-muted)]">
-            Déjà inscrit ?{' '}
-            <Link to="/login" className="text-primary-500 font-semibold hover:underline">
-              Se connecter
+          <form onSubmit={handleSubmit}>
+            <label className="field-label">Full name</label>
+            <input className="input" value={fullName} onChange={(e) => setFullName(e.target.value)} placeholder="Léa Moreau" required />
+            <label className="field-label" style={{ marginTop: 16 }}>
+              Email address
+            </label>
+            <input className="input" type="email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="lea.moreau@univ-lyon.fr" required />
+            <label className="field-label" style={{ marginTop: 16 }}>
+              Password
+            </label>
+            <input
+              className="input"
+              type="password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              placeholder="Create a password (min. 8 characters)"
+              required
+            />
+            <button type="submit" className="btn btn-primary btn-lg btn-full" style={{ marginTop: 24 }} disabled={loading}>
+              {loading ? 'Creating…' : 'Create account'}
+            </button>
+          </form>
+          <p style={{ textAlign: 'center', fontSize: 13.5, color: 'var(--ink-muted)', margin: '18px 0 0' }}>
+            Already have an account?{' '}
+            <Link to="/login" style={{ fontWeight: 600, color: 'var(--navy)', textDecoration: 'none' }}>
+              Sign in
             </Link>
           </p>
-        </Card>
+        </div>
       </div>
     </div>
-  )
+  );
 }
