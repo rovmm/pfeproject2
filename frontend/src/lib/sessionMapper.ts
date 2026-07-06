@@ -1,5 +1,7 @@
 import type { SessionResponse } from '../types'
-import type { SessionStatus, SessionType } from './mockData'
+
+export type SessionType = 'code' | 'quiz'
+export type SessionStatus = 'open' | 'closed'
 
 export function toBackendLanguage(display: string): string {
   const first = display.split(' ')[0].toLowerCase()

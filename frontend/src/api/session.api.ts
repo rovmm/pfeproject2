@@ -4,7 +4,11 @@ import type {
   CreateSessionRequest,
   DuplicateSessionRequest,
   StudentSubmissionResponse,
+  ParticipantPresenceResponse,
   UserResponse,
+  SaveCodingHistoryRequest,
+  CodingHistoryResponse,
+  AdminStatsResponse,
 } from '../types'
 
 export const sessionApi = {
@@ -36,9 +40,27 @@ export const sessionApi = {
       .get<StudentSubmissionResponse[]>(`/sessions/${sessionId}/submissions`)
       .then((r) => r.data),
 
+  heartbeat: (sessionId: number) =>
+    api.post<void>(`/sessions/${sessionId}/heartbeat`).then((r) => r.data),
+
+  getPresence: (sessionId: number) =>
+    api
+      .get<ParticipantPresenceResponse[]>(`/sessions/${sessionId}/presence`)
+      .then((r) => r.data),
+
   duplicateSession: (sessionId: number, req: DuplicateSessionRequest) =>
     api
       .post<SessionResponse>(`/sessions/${sessionId}/duplicate`, req)
+      .then((r) => r.data),
+
+  saveCodingHistory: (sessionId: number, req: SaveCodingHistoryRequest) =>
+    api
+      .post<void>(`/sessions/${sessionId}/history/save`, req)
+      .then((r) => r.data),
+
+  getCodingHistory: (sessionId: number) =>
+    api
+      .get<CodingHistoryResponse[]>(`/sessions/${sessionId}/history`)
       .then((r) => r.data),
 }
 
@@ -48,4 +70,7 @@ export const adminApi = {
 
   deleteUser: (id: number) =>
     api.delete<void>(`/users/${id}`).then((r) => r.data),
+
+  getStats: () =>
+    api.get<AdminStatsResponse>('/admin/stats').then((r) => r.data),
 }

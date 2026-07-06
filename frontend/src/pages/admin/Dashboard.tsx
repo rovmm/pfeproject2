@@ -1,46 +1,90 @@
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { useBreadcrumb } from '../../layout/breadcrumb';
 import Icon from '../../components/Icon';
 import StatCard from '../../components/StatCard';
-import { adminStats, adminUsers, type AdminUser } from '../../lib/mockData';
+import { adminApi } from '../../api/session.api';
 import { useToast } from '../../components/Toast';
+import type { AdminStatsResponse, Role, UserResponse } from '../../types';
 
-const badgeClass: Record<AdminUser['role'], string> = {
+const badgeClass: Record<Role, string> = {
   STUDENT: 'badge-student',
-  PROFESSOR: 'badge-professor',
+  PROF: 'badge-professor',
   ADMIN: 'badge-admin',
 };
+
+const AVATAR_PALETTE = [
+  { bg: 'var(--tint-indigo-strong)', color: 'var(--blue-accent)' },
+  { bg: 'var(--tint-indigo)', color: 'var(--navy-light)' },
+  { bg: 'var(--tint-green)', color: 'var(--success)' },
+  { bg: 'var(--tint-pink)', color: '#c14a7a' },
+  { bg: 'var(--tint-amber)', color: 'var(--amber-strong)' },
+];
+
+function avatarFor(name: string) {
+  let hash = 0;
+  for (let i = 0; i < name.length; i++) hash = (hash * 31 + name.charCodeAt(i)) | 0;
+  return AVATAR_PALETTE[Math.abs(hash) % AVATAR_PALETTE.length];
+}
+
+function initialsOf(name: string) {
+  return name
+    .split(' ')
+    .filter(Boolean)
+    .map((n) => n[0])
+    .join('')
+    .toUpperCase()
+    .slice(0, 2);
+}
+
+function fmtJoined(iso?: string) {
+  if (!iso) return '—';
+  return new Date(iso).toLocaleDateString(undefined, { month: 'short', day: 'numeric' });
+}
 
 export default function AdminDashboard({ showStats = true }: { showStats?: boolean }) {
   useBreadcrumb([showStats ? 'Dashboard' : 'Users']);
   const pushToast = useToast();
   const [query, setQuery] = useState('');
-  const [roleFilter, setRoleFilter] = useState<'ALL' | 'STUDENT' | 'PROFESSOR'>('ALL');
-  const [users, setUsers] = useState(adminUsers);
+  const [roleFilter, setRoleFilter] = useState<'ALL' | 'STUDENT' | 'PROF'>('ALL');
+  const [users, setUsers] = useState<UserResponse[]>([]);
+  const [stats, setStats] = useState<AdminStatsResponse | null>(null);
+
+  useEffect(() => {
+    adminApi.getUsers().then(setUsers).catch(() => pushToast('error', 'Could not load users'));
+    if (showStats) {
+      adminApi.getStats().then(setStats).catch(() => pushToast('error', 'Could not load stats'));
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [showStats]);
 
   const filtered = useMemo(
     () =>
       users.filter((u) => {
-        const matchesQuery = `${u.name} ${u.email}`.toLowerCase().includes(query.toLowerCase());
+        const matchesQuery = `${u.fullName} ${u.email}`.toLowerCase().includes(query.toLowerCase());
         const matchesRole = roleFilter === 'ALL' || u.role === roleFilter;
         return matchesQuery && matchesRole;
       }),
     [users, query, roleFilter],
   );
 
-  function deleteUser(email: string) {
-    setUsers((u) => u.filter((x) => x.email !== email));
-    pushToast('success', 'User removed');
+  function deleteUser(id: number) {
+    adminApi
+      .deleteUser(id)
+      .then(() => {
+        setUsers((u) => u.filter((x) => x.id !== id));
+        pushToast('success', 'User removed');
+      })
+      .catch(() => pushToast('error', 'Could not remove user'));
   }
 
   return (
     <div style={{ padding: '26px 34px' }}>
-      {showStats && (
+      {showStats && stats && (
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4,1fr)', gap: 18, marginBottom: 26 }}>
-          <StatCard icon={<Icon name="user-single" size={19} />} iconBg="var(--tint-indigo-strong)" value={adminStats.totalUsers.toLocaleString()} label="Total Users" />
-          <StatCard icon={<Icon name="menu" size={19} />} iconBg="var(--tint-indigo)" value={adminStats.sessions.toLocaleString()} label="Sessions" />
-          <StatCard icon={<Icon name="code" size={19} />} iconBg="var(--tint-green)" value={adminStats.codeExecutions} label="Code Executions" />
-          <StatCard icon={<Icon name="file-text" size={19} />} iconBg="var(--tint-amber)" value={adminStats.pdfSummaries.toLocaleString()} label="PDF Summaries" />
+          <StatCard icon={<Icon name="user-single" size={19} />} iconBg="var(--tint-indigo-strong)" value={stats.totalUsers.toLocaleString()} label="Total Users" />
+          <StatCard icon={<Icon name="menu" size={19} />} iconBg="var(--tint-indigo)" value={stats.totalSessions.toLocaleString()} label="Sessions" />
+          <StatCard icon={<Icon name="code" size={19} />} iconBg="var(--tint-green)" value={stats.totalExecutions.toLocaleString()} label="Code Executions" />
+          <StatCard icon={<Icon name="file-text" size={19} />} iconBg="var(--tint-amber)" value={stats.totalPdfSummaries.toLocaleString()} label="PDF Summaries" />
         </div>
       )}
 
@@ -59,7 +103,7 @@ export default function AdminDashboard({ showStats = true }: { showStats?: boole
             />
           </div>
           <div style={{ display: 'flex', gap: 4, background: 'var(--page-bg)', border: '1px solid var(--border)', borderRadius: 10, padding: 3 }}>
-            {(['ALL', 'STUDENT', 'PROFESSOR'] as const).map((r) => (
+            {(['ALL', 'STUDENT', 'PROF'] as const).map((r) => (
               <button
                 key={r}
                 onClick={() => setRoleFilter(r)}
@@ -81,27 +125,30 @@ export default function AdminDashboard({ showStats = true }: { showStats?: boole
         {filtered.length === 0 ? (
           <div style={{ padding: 40, textAlign: 'center', color: 'var(--ink-muted)', fontSize: 13.5 }}>No users match your search.</div>
         ) : (
-          filtered.map((u) => (
-            <div
-              key={u.email}
-              style={{ display: 'grid', gridTemplateColumns: '2fr 2fr 1fr 1fr 0.6fr', gap: 12, padding: '14px 20px', alignItems: 'center', borderTop: '1px solid var(--surface-muted)' }}
-            >
-              <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-                <div className="avatar" style={{ width: 32, height: 32, fontSize: 11, background: u.avatarBg, color: u.avatarColor }}>
-                  {u.initials}
+          filtered.map((u) => {
+            const avatar = avatarFor(u.fullName);
+            return (
+              <div
+                key={u.id}
+                style={{ display: 'grid', gridTemplateColumns: '2fr 2fr 1fr 1fr 0.6fr', gap: 12, padding: '14px 20px', alignItems: 'center', borderTop: '1px solid var(--surface-muted)' }}
+              >
+                <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+                  <div className="avatar" style={{ width: 32, height: 32, fontSize: 11, background: avatar.bg, color: avatar.color }}>
+                    {initialsOf(u.fullName)}
+                  </div>
+                  <span style={{ fontSize: 13.5, fontWeight: 600, color: 'var(--ink)' }}>{u.fullName}</span>
                 </div>
-                <span style={{ fontSize: 13.5, fontWeight: 600, color: 'var(--ink)' }}>{u.name}</span>
+                <span style={{ fontSize: 13, color: 'var(--ink-muted)' }}>{u.email}</span>
+                <span>
+                  <span className={`badge ${badgeClass[u.role]}`}>{u.role}</span>
+                </span>
+                <span style={{ fontSize: 12.5, color: 'var(--ink-muted)' }}>{fmtJoined(u.createdAt)}</span>
+                <span style={{ color: '#d99', cursor: 'pointer', textAlign: 'center' }} onClick={() => deleteUser(u.id)}>
+                  <Icon name="trash" size={16} />
+                </span>
               </div>
-              <span style={{ fontSize: 13, color: 'var(--ink-muted)' }}>{u.email}</span>
-              <span>
-                <span className={`badge ${badgeClass[u.role]}`}>{u.role}</span>
-              </span>
-              <span style={{ fontSize: 12.5, color: 'var(--ink-muted)' }}>{u.joined}</span>
-              <span style={{ color: '#d99', cursor: 'pointer', textAlign: 'center' }} onClick={() => deleteUser(u.email)}>
-                <Icon name="trash" size={16} />
-              </span>
-            </div>
-          ))
+            );
+          })
         )}
       </div>
     </div>

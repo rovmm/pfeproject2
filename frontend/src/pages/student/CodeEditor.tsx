@@ -4,9 +4,10 @@ import Icon from '../../components/Icon';
 import LanguageSelector from '../../components/LanguageSelector';
 import MonacoPane from '../../components/MonacoPane';
 import CodeOutputPanel from '../../components/CodeOutputPanel';
-import { codeHistory } from '../../lib/mockData';
 import { codeApi } from '../../api/code.api';
+import { aiApi } from '../../api/ai.api';
 import { toBackendLanguage } from '../../lib/sessionMapper';
+import { useToast } from '../../components/Toast';
 
 const DEFAULT_CODE = `import math
 
@@ -14,8 +15,11 @@ nums = [4, 9, 16]
 for n in nums:
     print(math.sqrt(n))`;
 
+type RunHistoryEntry = { label: string; desc: string; when: string; ok: boolean };
+
 export default function CodeEditor() {
   useBreadcrumb(['Code Editor']);
+  const pushToast = useToast();
   const [language, setLanguage] = useState('Python 3.11');
   const [code, setCode] = useState(DEFAULT_CODE);
   const [stdin, setStdin] = useState('');
@@ -23,7 +27,25 @@ export default function CodeEditor() {
   const [historyOpen, setHistoryOpen] = useState(true);
   const [output, setOutput] = useState<{ ok: boolean; text: string; ms: number } | null>(null);
   const [running, setRunning] = useState(false);
-  const [analyzed, setAnalyzed] = useState(false);
+  const [analysis, setAnalysis] = useState<string | null>(null);
+  const [analyzing, setAnalyzing] = useState(false);
+  const [history, setHistory] = useState<RunHistoryEntry[]>([]);
+
+  async function analyze() {
+    setAnalyzing(true);
+    setAnalysis(null);
+    try {
+      const res = await aiApi.chat({
+        message: `Briefly analyze this ${language} code for correctness and style, in 2-3 sentences:\n\n${code}`,
+        conversationHistory: [],
+      });
+      setAnalysis(res.blocked ? 'AI analysis is not available right now.' : res.reply);
+    } catch {
+      pushToast('error', 'Could not run AI analysis');
+    } finally {
+      setAnalyzing(false);
+    }
+  }
 
   async function run() {
     setRunning(true);
@@ -34,8 +56,19 @@ export default function CodeEditor() {
         stdin: stdin || undefined,
       });
       setOutput({ ok: res.success, text: res.success ? res.output : res.error, ms: res.executionTimeMs });
+      setHistory((h) => [
+        {
+          label: `${res.success ? 'Run' : 'Error'} · ${res.executionTimeMs}ms`,
+          desc: code.split('\n')[0]?.slice(0, 40) || language,
+          when: 'just now',
+          ok: res.success,
+        },
+        ...h,
+      ]);
     } catch (err: any) {
-      setOutput({ ok: false, text: err.response?.data?.message || 'Execution failed.', ms: 0 });
+      const message = err.response?.data?.message || 'Execution failed.';
+      setOutput({ ok: false, text: message, ms: 0 });
+      setHistory((h) => [{ label: 'Error', desc: message.slice(0, 40), when: 'just now', ok: false }, ...h]);
     } finally {
       setRunning(false);
     }
@@ -49,8 +82,8 @@ export default function CodeEditor() {
           <button className="btn btn-secondary btn-sm" onClick={run} disabled={running}>
             <Icon name="play" size={14} /> {running ? 'Running…' : 'Run'}
           </button>
-          <button className="btn btn-secondary btn-sm" style={{ color: 'var(--navy-light)' }} onClick={() => setAnalyzed(true)}>
-            <Icon name="sparkles" size={14} /> AI Analyze
+          <button className="btn btn-secondary btn-sm" style={{ color: 'var(--navy-light)' }} onClick={analyze} disabled={analyzing}>
+            <Icon name="sparkles" size={14} /> {analyzing ? 'Analyzing…' : 'AI Analyze'}
           </button>
         </div>
       </div>
@@ -91,9 +124,9 @@ export default function CodeEditor() {
           {output && (
             <div style={{ background: 'var(--editor-header)' }}>
               <CodeOutputPanel status={output.ok ? 'success' : 'error'} durationMs={output.ms} output={output.text} />
-              {analyzed && (
+              {analysis && (
                 <div style={{ padding: '0 14px 14px', fontSize: 12.5, color: 'var(--editor-text)', lineHeight: 1.6 }}>
-                  Loop looks efficient. Consider a list comprehension for conciseness: <code>[math.sqrt(n) for n in nums]</code>.
+                  {analysis}
                 </div>
               )}
             </div>
@@ -118,16 +151,20 @@ export default function CodeEditor() {
             </span>
           </div>
           <div style={{ padding: 10, display: 'flex', flexDirection: 'column', gap: 8, overflowY: 'auto' }}>
-            {codeHistory.map((h) => (
-              <div key={h.desc} className="card" style={{ padding: '11px 12px', cursor: 'pointer' }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: 7 }}>
-                  <span style={{ width: 7, height: 7, borderRadius: '50%', background: h.ok ? 'var(--success)' : 'var(--error)' }} />
-                  <span style={{ fontSize: 12, fontWeight: 600, color: 'var(--ink)' }}>{h.label}</span>
+            {history.length === 0 ? (
+              <div style={{ fontSize: 12, color: 'var(--ink-faint)', padding: '11px 12px' }}>Run your code to see history here.</div>
+            ) : (
+              history.map((h, i) => (
+                <div key={i} className="card" style={{ padding: '11px 12px', cursor: 'pointer' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 7 }}>
+                    <span style={{ width: 7, height: 7, borderRadius: '50%', background: h.ok ? 'var(--success)' : 'var(--error)' }} />
+                    <span style={{ fontSize: 12, fontWeight: 600, color: 'var(--ink)' }}>{h.label}</span>
+                  </div>
+                  <div style={{ fontSize: 11, color: 'var(--ink-placeholder)', marginTop: 4, fontFamily: 'var(--font-mono)' }}>{h.desc}</div>
+                  <div style={{ fontSize: 11, color: 'var(--ink-faint)', marginTop: 2 }}>{h.when}</div>
                 </div>
-                <div style={{ fontSize: 11, color: 'var(--ink-placeholder)', marginTop: 4, fontFamily: 'var(--font-mono)' }}>{h.desc}</div>
-                <div style={{ fontSize: 11, color: 'var(--ink-faint)', marginTop: 2 }}>{h.when}</div>
-              </div>
-            ))}
+              ))
+            )}
           </div>
         </div>
         {!historyOpen && (

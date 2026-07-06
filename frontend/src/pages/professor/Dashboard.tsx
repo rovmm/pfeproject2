@@ -6,10 +6,17 @@ import Badge from '../../components/Badge';
 import Button from '../../components/Button';
 import SessionTypeCard from '../../components/SessionTypeCard';
 import LanguageSelector from '../../components/LanguageSelector';
-import type { SessionType } from '../../lib/mockData';
-import { toBackendLanguage, toProfessorDisplay } from '../../lib/sessionMapper';
+import ToggleSwitch from '../../components/ToggleSwitch';
+import { toBackendLanguage, toProfessorDisplay, type SessionType } from '../../lib/sessionMapper';
 import { sessionApi } from '../../api/session.api';
 import { useToast } from '../../components/Toast';
+
+type ProfessorSession = ReturnType<typeof toProfessorDisplay> & {
+  allowAI: boolean;
+  disableCopyPaste: boolean;
+  warnOnTabSwitch: boolean;
+  recordCodingHistory: boolean;
+};
 
 export default function ProfessorDashboard() {
   useBreadcrumb(['Dashboard']);
@@ -21,13 +28,29 @@ export default function ProfessorDashboard() {
   const [filiere, setFiliere] = useState('L2 Informatique');
   const [language, setLanguage] = useState('Python 3.11');
   const [prompt, setPrompt] = useState('Write a recursive factorial(n) function. Read n from stdin and print n!.');
-  const [sessions, setSessions] = useState<ReturnType<typeof toProfessorDisplay>[]>([]);
+  const [sessions, setSessions] = useState<ProfessorSession[]>([]);
+
+  const [securityOpen, setSecurityOpen] = useState(false);
+  const [allowAI, setAllowAI] = useState(true);
+  const [disableCopyPaste, setDisableCopyPaste] = useState(false);
+  const [warnOnTabSwitch, setWarnOnTabSwitch] = useState(false);
+  const [autoSave, setAutoSave] = useState(true);
+  const [recordCodingHistory, setRecordCodingHistory] = useState(false);
+  const [timeLimitMinutes, setTimeLimitMinutes] = useState(0);
 
   useEffect(() => {
     sessionApi
       .getMySessions()
       .then((data) => {
-        setSessions(data.map(toProfessorDisplay));
+        setSessions(
+          data.map((s) => ({
+            ...toProfessorDisplay(s),
+            allowAI: s.allowAI,
+            disableCopyPaste: s.disableCopyPaste,
+            warnOnTabSwitch: s.warnOnTabSwitch,
+            recordCodingHistory: s.recordCodingHistory,
+          })),
+        );
         setCreating(data.length === 0);
       })
       .catch(() => pushToast('error', 'Could not load your sessions'));
@@ -42,8 +65,23 @@ export default function ProfessorDashboard() {
         language: type === 'code' ? (toBackendLanguage(language) as any) : undefined,
         exercisePrompt: type === 'code' ? prompt : undefined,
         filiere,
+        allowAI,
+        disableCopyPaste,
+        warnOnTabSwitch,
+        autoSave,
+        timeLimitMinutes,
+        recordCodingHistory,
       });
-      setSessions((prev) => [toProfessorDisplay(created), ...prev]);
+      setSessions((prev) => [
+        {
+          ...toProfessorDisplay(created),
+          allowAI: created.allowAI,
+          disableCopyPaste: created.disableCopyPaste,
+          warnOnTabSwitch: created.warnOnTabSwitch,
+          recordCodingHistory: created.recordCodingHistory,
+        },
+        ...prev,
+      ]);
       pushToast('success', 'Session created');
       setCreating(false);
       if (type === 'quiz') navigate(`/professor/quiz-creator?sessionId=${created.id}`);
@@ -109,6 +147,87 @@ export default function ProfessorDashboard() {
               You'll add questions in the Quiz Creator after creating this session.
             </p>
           )}
+
+          <div style={{ marginBottom: 18 }}>
+            <button
+              type="button"
+              onClick={() => setSecurityOpen((o) => !o)}
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: 8,
+                width: '100%',
+                background: 'var(--surface-alt)',
+                border: '1px solid var(--border)',
+                borderRadius: 11,
+                padding: '11px 14px',
+                cursor: 'pointer',
+                fontFamily: 'var(--font-heading)',
+                fontWeight: 700,
+                fontSize: 13.5,
+                color: 'var(--ink)',
+              }}
+            >
+              <span>Security Options</span>
+              <span
+                style={{
+                  marginLeft: 'auto',
+                  display: 'flex',
+                  transform: securityOpen ? 'rotate(180deg)' : 'rotate(0deg)',
+                  transition: 'transform 0.15s ease',
+                  color: 'var(--ink-muted)',
+                }}
+              >
+                <Icon name="chevron-down" size={14} />
+              </span>
+            </button>
+            {securityOpen && (
+              <div style={{ border: '1px solid var(--border)', borderTop: 'none', borderRadius: '0 0 11px 11px', padding: '4px 14px' }}>
+                <ToggleSwitch
+                  label="Allow AI Assistant"
+                  description="Students can use the AI chat during this session"
+                  checked={allowAI}
+                  onChange={setAllowAI}
+                />
+                <ToggleSwitch
+                  label="Disable Copy/Paste"
+                  description="Blocks Ctrl+C, Ctrl+V, and right-click on student devices"
+                  checked={disableCopyPaste}
+                  onChange={setDisableCopyPaste}
+                />
+                <ToggleSwitch
+                  label="Warn on Tab Switch"
+                  description="Students get a warning when they leave the page"
+                  checked={warnOnTabSwitch}
+                  onChange={setWarnOnTabSwitch}
+                />
+                <ToggleSwitch
+                  label="Auto Save Code"
+                  description="Student code saved automatically every 30 seconds"
+                  checked={autoSave}
+                  onChange={setAutoSave}
+                />
+                <ToggleSwitch
+                  label="Record Coding History"
+                  description="Track every edit (viewable by professor)"
+                  checked={recordCodingHistory}
+                  onChange={setRecordCodingHistory}
+                />
+                <div style={{ padding: '12px 0' }}>
+                  <label className="field-label">Time Limit (minutes) — 0 = no limit</label>
+                  <input
+                    className="input"
+                    type="number"
+                    min={0}
+                    max={300}
+                    value={timeLimitMinutes}
+                    onChange={(e) => setTimeLimitMinutes(Math.max(0, Math.min(300, Number(e.target.value))))}
+                  />
+                </div>
+              </div>
+            )}
+          </div>
+
           <div style={{ display: 'flex', gap: 12 }}>
             <Button onClick={createSession}>
               {type === 'code' ? 'Create & get code' : 'Create & add questions'}
@@ -131,6 +250,30 @@ export default function ProfessorDashboard() {
               <Badge kind={s.type === 'code' ? 'python' : 'quiz'}>{s.type === 'code' ? s.language : 'QUIZ'}</Badge>
             </div>
             <div style={{ fontFamily: 'var(--font-heading)', fontWeight: 700, fontSize: 16, color: 'var(--ink)' }}>{s.title}</div>
+            {(!s.allowAI || s.disableCopyPaste || s.warnOnTabSwitch || s.recordCodingHistory) && (
+              <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6, marginTop: 10 }}>
+                {!s.allowAI && (
+                  <span className="badge badge-chip" style={{ display: 'inline-flex', alignItems: 'center', gap: 4, color: 'var(--ink-secondary)', background: 'var(--surface-muted)' }}>
+                    <Icon name="x-circle" size={11} /> AI disabled
+                  </span>
+                )}
+                {s.disableCopyPaste && (
+                  <span className="badge badge-chip" style={{ display: 'inline-flex', alignItems: 'center', gap: 4, color: 'var(--ink-secondary)', background: 'var(--surface-muted)' }}>
+                    <Icon name="lock" size={11} /> Copy/paste disabled
+                  </span>
+                )}
+                {s.warnOnTabSwitch && (
+                  <span className="badge badge-chip" style={{ display: 'inline-flex', alignItems: 'center', gap: 4, color: 'var(--ink-secondary)', background: 'var(--surface-muted)' }}>
+                    <Icon name="eye" size={11} /> Tab monitoring
+                  </span>
+                )}
+                {s.recordCodingHistory && (
+                  <span className="badge badge-chip" style={{ display: 'inline-flex', alignItems: 'center', gap: 4, color: 'var(--ink-secondary)', background: 'var(--surface-muted)' }}>
+                    <Icon name="bar-chart" size={11} /> History recorded
+                  </span>
+                )}
+              </div>
+            )}
             <div style={{ display: 'flex', alignItems: 'center', gap: 12, margin: '16px 0' }}>
               <div
                 style={{

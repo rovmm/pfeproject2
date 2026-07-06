@@ -2,7 +2,10 @@ import { useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import Icon from '../../components/Icon';
 import QuizOptionButton from '../../components/QuizOptionButton';
-import { quizMeta, quizQuestions } from '../../lib/mockData';
+import { SkeletonTableRow } from '../../components/Skeleton';
+import { quizApi } from '../../api/quiz.api';
+import { useToast } from '../../components/Toast';
+import type { QuestionResponse, QuizResponse } from '../../types';
 
 function formatTime(sec: number) {
   const m = Math.floor(sec / 60);
@@ -13,25 +16,72 @@ function formatTime(sec: number) {
 export default function QuizTaking() {
   const { id } = useParams();
   const navigate = useNavigate();
+  const pushToast = useToast();
+  const [quiz, setQuiz] = useState<QuizResponse | null>(null);
   const [index, setIndex] = useState(0);
-  const [answers, setAnswers] = useState<Record<string, string>>({});
-  const [seconds, setSeconds] = useState(47);
+  const [answers, setAnswers] = useState<Record<number, 'A' | 'B' | 'C' | 'D'>>({});
+  const [seconds, setSeconds] = useState(0);
+  const [submitting, setSubmitting] = useState(false);
 
   useEffect(() => {
+    if (!id) return;
+    quizApi
+      .getQuiz(Number(id))
+      .then((q) => {
+        setQuiz(q);
+        setSeconds(q.timeLimitMinutes * 60);
+      })
+      .catch(() => pushToast('error', 'Could not load quiz'));
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [id]);
+
+  useEffect(() => {
+    if (!quiz) return;
     const t = setInterval(() => setSeconds((s) => Math.max(0, s - 1)), 1000);
     return () => clearInterval(t);
-  }, []);
+  }, [quiz]);
 
-  const question = quizQuestions[index % quizQuestions.length];
-  const total = quizMeta.questionCount;
+  if (!quiz) {
+    return (
+      <div style={{ padding: 40 }}>
+        <SkeletonTableRow />
+      </div>
+    );
+  }
+
+  const questions = quiz.questions;
+  const question: QuestionResponse = questions[index];
+  const total = questions.length;
   const current = index + 1;
   const isLast = current === total;
   const selected = answers[question.id];
   const urgent = seconds < 60;
+  const options = [
+    { letter: 'A' as const, text: question.optionA },
+    { letter: 'B' as const, text: question.optionB },
+    { letter: 'C' as const, text: question.optionC },
+    { letter: 'D' as const, text: question.optionD },
+  ];
 
   function submitQuiz() {
-    localStorage.setItem(`quiz-submitted-${id}`, '1');
-    navigate(`/student/session/${id}/results`);
+    if (!id || submitting) return;
+    setSubmitting(true);
+    quizApi
+      .submitAnswers(Number(id), {
+        answers: Object.entries(answers).map(([questionId, selectedOption]) => ({
+          questionId: Number(questionId),
+          selectedOption,
+        })),
+      })
+      .then((attempt) => {
+        localStorage.setItem(`quiz-submitted-${id}`, '1');
+        localStorage.setItem(`quiz-attempt-${id}`, JSON.stringify(attempt));
+        navigate(`/student/session/${id}/results`);
+      })
+      .catch(() => {
+        pushToast('error', 'Could not submit quiz');
+        setSubmitting(false);
+      });
   }
 
   return (
@@ -65,10 +115,10 @@ export default function QuizTaking() {
       </div>
       <div style={{ flex: 1, padding: '34px 40px', overflowY: 'auto' }}>
         <h2 style={{ fontFamily: 'var(--font-heading)', fontWeight: 700, fontSize: 22, color: 'var(--ink)', lineHeight: 1.4, margin: '0 0 26px' }}>
-          {question.prompt}
+          {question.questionText}
         </h2>
         <div style={{ display: 'flex', flexDirection: 'column', gap: 13 }}>
-          {question.options.map((opt) => (
+          {options.map((opt) => (
             <QuizOptionButton
               key={opt.letter}
               letter={opt.letter}
@@ -84,7 +134,7 @@ export default function QuizTaking() {
           <Icon name="chevron-left" size={14} /> Previous
         </button>
         {isLast ? (
-          <button className="btn" style={{ marginLeft: 'auto', background: 'var(--success)', color: '#fff' }} onClick={submitQuiz} disabled={!selected}>
+          <button className="btn" style={{ marginLeft: 'auto', background: 'var(--success)', color: '#fff' }} onClick={submitQuiz} disabled={!selected || submitting}>
             Submit Quiz
           </button>
         ) : (

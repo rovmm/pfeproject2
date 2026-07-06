@@ -28,12 +28,20 @@ export interface UserResponse {
   email: string
   role: Role
   plan?: string
+  createdAt?: string
 }
 
 export interface UpdateUserRequest {
   fullName?: string
   email?: string
   password?: string
+}
+
+export interface AdminStatsResponse {
+  totalUsers: number
+  totalSessions: number
+  totalExecutions: number
+  totalPdfSummaries: number
 }
 
 // ─── Sessions ─────────────────────────────────────────────
@@ -53,6 +61,12 @@ export interface SessionResponse {
   filiere?: string
   sessionType: SessionType
   hasQuiz: boolean
+  allowAI: boolean
+  disableCopyPaste: boolean
+  warnOnTabSwitch: boolean
+  autoSave: boolean
+  timeLimitMinutes: number
+  recordCodingHistory: boolean
 }
 
 export interface CreateSessionRequest {
@@ -61,6 +75,12 @@ export interface CreateSessionRequest {
   exercisePrompt?: string
   filiere?: string
   sessionType?: SessionType
+  allowAI?: boolean
+  disableCopyPaste?: boolean
+  warnOnTabSwitch?: boolean
+  autoSave?: boolean
+  timeLimitMinutes?: number
+  recordCodingHistory?: boolean
 }
 
 export interface DuplicateSessionRequest {
@@ -88,6 +108,14 @@ export interface StudentSubmissionResponse {
   submittedAt: string
 }
 
+export interface ParticipantPresenceResponse {
+  studentId: number
+  studentName: string
+  studentEmail: string
+  lastSeenAt: string | null
+  online: boolean
+}
+
 // ─── Code Execution ───────────────────────────────────────
 export type Language = 'python' | 'javascript' | 'java' | 'cpp' | 'php' | 'typescript'
 
@@ -113,6 +141,7 @@ export interface CodeExecuteRequest {
   code: string
   language: Language
   stdin?: string
+  sessionId?: number
 }
 
 export interface CodeExecuteResponse {
@@ -213,6 +242,46 @@ export interface LeaderboardResponse {
   entries: LeaderboardEntry[]
   totalStudents: number
   completedCount: number
+}
+
+// ─── AI Assistant ─────────────────────────────────────────
+export interface ChatMessage {
+  role: 'user' | 'assistant'
+  content: string
+}
+
+export interface AiChatRequest {
+  message: string
+  conversationHistory: ChatMessage[]
+  sessionId?: number
+}
+
+export interface AiChatResponse {
+  reply: string
+  blocked: boolean
+}
+
+// ─── Coding History ───────────────────────────────────────
+export interface CodeSnapshot {
+  code: string
+  timestamp: string
+  language: string
+}
+
+export interface SaveCodingHistoryRequest {
+  editCount: number
+  startedAt: string
+  snapshots: CodeSnapshot[]
+}
+
+export interface CodingHistoryResponse {
+  studentId: number
+  studentName: string
+  studentEmail: string
+  editCount: number
+  startedAt: string
+  submittedAt: string | null
+  snapshots: CodeSnapshot[]
 }
 
 // ─── UI ───────────────────────────────────────────────────
