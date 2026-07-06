@@ -90,6 +90,17 @@ export default function ProfessorDashboard() {
     }
   }
 
+  async function deleteSession(id: string) {
+    if (!window.confirm('Delete this session? This cannot be undone.')) return;
+    try {
+      await sessionApi.delete(Number(id));
+      setSessions((prev) => prev.filter((s) => s.id !== id));
+      pushToast('success', 'Session deleted');
+    } catch (err: any) {
+      pushToast('error', err.response?.data?.message || 'Could not delete session');
+    }
+  }
+
   return (
     <div style={{ padding: '26px 34px' }}>
       <div style={{ display: 'flex', alignItems: 'center', marginBottom: 20 }}>
@@ -319,6 +330,13 @@ export default function ProfessorDashboard() {
                 onClick={() => pushToast('info', 'Session duplicated — edit the class name to reuse it')}
               >
                 <Icon name="copy" size={13} /> Duplicate
+              </button>
+              <button
+                className="btn btn-ghost btn-sm"
+                style={{ border: '1px solid var(--border)', background: 'var(--surface-alt)', color: '#d99' }}
+                onClick={() => deleteSession(s.id)}
+              >
+                <Icon name="trash" size={13} /> Delete
               </button>
             </div>
           </div>

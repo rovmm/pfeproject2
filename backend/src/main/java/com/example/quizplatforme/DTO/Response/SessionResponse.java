@@ -23,5 +23,11 @@ public class SessionResponse {
     private String filiere;
     private String sessionType;
     private Boolean hasQuiz;
+    private boolean allowAI;
+    private boolean disableCopyPaste;
+    private boolean warnOnTabSwitch;
+    private boolean autoSave;
+    private int timeLimitMinutes;
+    private boolean recordCodingHistory;
     private LocalDateTime createdAt;
 }

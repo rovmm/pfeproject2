@@ -30,6 +30,9 @@ export const sessionApi = {
   close: (id: number) =>
     api.put<void>(`/sessions/${id}/close`).then((r) => r.data),
 
+  delete: (id: number) =>
+    api.delete<void>(`/sessions/${id}`).then((r) => r.data),
+
   submitCode: (sessionId: number, code: string, language: string, stdin?: string) =>
     api
       .post<StudentSubmissionResponse>(`/sessions/${sessionId}/submit`, { code, language, stdin })

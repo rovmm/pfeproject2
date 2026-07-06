@@ -102,7 +102,12 @@ public class SecurityConfig {
                         .requestMatchers("/api/sessions/join/**").hasRole("STUDENT")
                         .requestMatchers(HttpMethod.POST, "/api/sessions/*/submit").hasRole("STUDENT")
                         .requestMatchers(HttpMethod.GET,  "/api/sessions/*/submissions").hasRole("PROF")
+                        .requestMatchers(HttpMethod.POST, "/api/sessions/*/heartbeat").hasRole("STUDENT")
+                        .requestMatchers(HttpMethod.GET,  "/api/sessions/*/presence").hasRole("PROF")
                         .requestMatchers(HttpMethod.POST, "/api/sessions/*/duplicate").hasRole("PROF")
+                        .requestMatchers(HttpMethod.POST, "/api/sessions/*/history/save").hasRole("STUDENT")
+                        .requestMatchers(HttpMethod.GET,  "/api/sessions/*/history").hasRole("PROF")
+                        .requestMatchers(HttpMethod.DELETE, "/api/sessions/*").hasRole("PROF")
 
                         // Quiz endpoints — most-specific first
                         .requestMatchers(HttpMethod.POST, "/api/sessions/*/quiz/create").hasRole("PROF")
@@ -128,6 +133,7 @@ public class SecurityConfig {
                         .requestMatchers("/api/prof/**").hasRole("PROF")
 
                         // Intelligence artificielle
+                        .requestMatchers(HttpMethod.POST, "/api/ai/chat").hasAnyRole("STUDENT", "PROF")
                         .requestMatchers("/api/ai/**").authenticated()
 
                         // Tout le reste requiert une authentification

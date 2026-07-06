@@ -4,14 +4,21 @@ import com.example.quizplatforme.DTO.Request.CreateSessionRequest;
 import com.example.quizplatforme.DTO.Request.DuplicateSessionRequest;
 import com.example.quizplatforme.DTO.Request.SubmitCodeRequest;
 import com.example.quizplatforme.DTO.Response.CodeResponse;
+import com.example.quizplatforme.DTO.Response.ParticipantPresenceResponse;
 import com.example.quizplatforme.DTO.Response.SessionResponse;
 import com.example.quizplatforme.DTO.Response.StudentSubmissionResponse;
+import com.example.quizplatforme.Model.Entity.Quiz;
+import com.example.quizplatforme.Model.Entity.QuizAttempt;
 import com.example.quizplatforme.Model.Entity.Session;
+import com.example.quizplatforme.Model.Entity.SessionPresence;
 import com.example.quizplatforme.Model.Entity.StudentSubmission;
 import com.example.quizplatforme.Model.Entity.User;
 import com.example.quizplatforme.Model.Enum.SessionStatus;
 import com.example.quizplatforme.Model.Enum.SubmissionStatus;
+import com.example.quizplatforme.Repository.CodingHistoryRepository;
+import com.example.quizplatforme.Repository.QuizAttemptRepository;
 import com.example.quizplatforme.Repository.QuizRepository;
+import com.example.quizplatforme.Repository.SessionPresenceRepository;
 import com.example.quizplatforme.Repository.SessionRepository;
 import com.example.quizplatforme.Repository.StudentSubmissionRepository;
 import com.example.quizplatforme.Repository.UserRepository;
@@ -25,8 +32,11 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.security.SecureRandom;
+import java.time.Duration;
 import java.time.LocalDateTime;
+import java.util.Comparator;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -42,10 +52,17 @@ public class SessionServiceImpl implements ISessionService {
     private static final int          CODE_LENGTH = 6;
     private static final SecureRandom RANDOM      = new SecureRandom();
 
+    /** Étudiant considéré "en ligne" si son dernier heartbeat date de moins de 15s
+     *  (le client envoie un heartbeat toutes les 5s — voir CodeSession.tsx). */
+    private static final long PRESENCE_ONLINE_THRESHOLD_SECONDS = 15;
+
     private final SessionRepository           sessionRepository;
     private final UserRepository              userRepository;
     private final StudentSubmissionRepository submissionRepository;
     private final QuizRepository              quizRepository;
+    private final QuizAttemptRepository       quizAttemptRepository;
+    private final CodingHistoryRepository     codingHistoryRepository;
+    private final SessionPresenceRepository   sessionPresenceRepository;
     private final DockerSandboxService        dockerSandboxService;
     private final IQuizService                quizService;
 
@@ -89,6 +106,12 @@ public class SessionServiceImpl implements ISessionService {
                 .exercisePrompt(exercisePrompt)
                 .filiere(request.getFiliere())
                 .sessionType(type)
+                .allowAI(request.isAllowAI())
+                .disableCopyPaste(request.isDisableCopyPaste())
+                .warnOnTabSwitch(request.isWarnOnTabSwitch())
+                .autoSave(request.isAutoSave())
+                .timeLimitMinutes(request.getTimeLimitMinutes())
+                .recordCodingHistory(request.isRecordCodingHistory())
                 .build();
 
         return toResponse(sessionRepository.save(session));
@@ -262,6 +285,12 @@ public class SessionServiceImpl implements ISessionService {
                 .exercisePrompt(original.getExercisePrompt())
                 .filiere(request.getFiliere())
                 .sessionType(original.getSessionType())
+                .allowAI(original.isAllowAI())
+                .disableCopyPaste(original.isDisableCopyPaste())
+                .warnOnTabSwitch(original.isWarnOnTabSwitch())
+                .autoSave(original.isAutoSave())
+                .timeLimitMinutes(original.getTimeLimitMinutes())
+                .recordCodingHistory(original.isRecordCodingHistory())
                 .build();
 
         Session saved = sessionRepository.save(duplicate);
@@ -273,6 +302,95 @@ public class SessionServiceImpl implements ISessionService {
         }
 
         return toResponse(saved);
+    }
+
+    // ── Présence (heartbeat) ────────────────────────────────────────────────────
+
+    @Override
+    @Transactional
+    public void heartbeat(Long sessionId, String studentEmail) {
+        Session session = getSessionOrThrow(sessionId);
+        User    student = getUserByEmail(studentEmail);
+
+        LocalDateTime now = LocalDateTime.now();
+        SessionPresence presence = sessionPresenceRepository
+                .findBySessionIdAndStudentId(sessionId, student.getId())
+                .orElseGet(() -> SessionPresence.builder()
+                        .session(session)
+                        .student(student)
+                        .joinedAt(now)
+                        .build());
+
+        presence.setLastSeenAt(now);
+        sessionPresenceRepository.save(presence);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public List<ParticipantPresenceResponse> getPresence(Long sessionId, String profEmail) {
+        Session session = getSessionOrThrow(sessionId);
+        User    prof     = getUserByEmail(profEmail);
+
+        if (!session.getProf().getId().equals(prof.getId())) {
+            throw new ForbiddenException(
+                    "Accès refusé. Vous n'êtes pas le propriétaire de cette session.");
+        }
+
+        Map<Long, SessionPresence> presenceByStudentId = sessionPresenceRepository
+                .findBySessionId(sessionId)
+                .stream()
+                .collect(Collectors.toMap(p -> p.getStudent().getId(), p -> p));
+
+        LocalDateTime now = LocalDateTime.now();
+
+        return session.getStudents()
+                .stream()
+                .map(s -> {
+                    SessionPresence presence = presenceByStudentId.get(s.getId());
+                    LocalDateTime lastSeenAt = presence != null ? presence.getLastSeenAt() : null;
+                    boolean online = lastSeenAt != null
+                            && Duration.between(lastSeenAt, now).getSeconds() <= PRESENCE_ONLINE_THRESHOLD_SECONDS;
+
+                    return ParticipantPresenceResponse.builder()
+                            .studentId(s.getId())
+                            .studentName(s.getFullName())
+                            .studentEmail(s.getEmail())
+                            .lastSeenAt(lastSeenAt)
+                            .online(online)
+                            .build();
+                })
+                .sorted(Comparator.comparing(ParticipantPresenceResponse::getStudentName))
+                .collect(Collectors.toList());
+    }
+
+    // ── Suppression ────────────────────────────────────────────────────────────
+
+    @Override
+    @Transactional
+    public void deleteSession(Long id, String profEmail) {
+        Session session = getSessionOrThrow(id);
+        User    prof    = getUserByEmail(profEmail);
+
+        if (!session.getProf().getId().equals(prof.getId())) {
+            throw new ForbiddenException(
+                    "Accès refusé. Vous n'êtes pas le propriétaire de cette session.");
+        }
+
+        quizRepository.findBySessionId(id).ifPresent(quiz -> {
+            List<QuizAttempt> attempts = quizAttemptRepository.findByQuizIdOrderByPercentageDesc(quiz.getId());
+            quizAttemptRepository.deleteAll(attempts);
+            quizRepository.delete(quiz);
+        });
+
+        codingHistoryRepository.deleteAll(codingHistoryRepository.findBySessionId(id));
+        sessionPresenceRepository.deleteAll(sessionPresenceRepository.findBySessionId(id));
+        submissionRepository.deleteAll(
+                submissionRepository.findBySessionIdOrderBySubmittedAtDesc(id));
+
+        session.getStudents().clear();
+        sessionRepository.save(session);
+
+        sessionRepository.delete(session);
     }
 
     // ── Helpers privés ─────────────────────────────────────────────────────────
@@ -315,6 +433,12 @@ public class SessionServiceImpl implements ISessionService {
                 .filiere(session.getFiliere())
                 .sessionType(session.getSessionType())
                 .hasQuiz(session.getId() != null && quizRepository.existsBySessionId(session.getId()))
+                .allowAI(session.isAllowAI())
+                .disableCopyPaste(session.isDisableCopyPaste())
+                .warnOnTabSwitch(session.isWarnOnTabSwitch())
+                .autoSave(session.isAutoSave())
+                .timeLimitMinutes(session.getTimeLimitMinutes())
+                .recordCodingHistory(session.isRecordCodingHistory())
                 .createdAt(session.getCreatedAt())
                 .build();
     }
