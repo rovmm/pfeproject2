@@ -90,6 +90,28 @@ export default function ProfessorDashboard() {
     }
   }
 
+  async function duplicateSession(s: ProfessorSession) {
+    try {
+      const duplicated = await sessionApi.duplicateSession(Number(s.id), {
+        title: `${s.title} (copy)`,
+        filiere: s.filiere,
+      });
+      setSessions((prev) => [
+        {
+          ...toProfessorDisplay(duplicated),
+          allowAI: duplicated.allowAI,
+          disableCopyPaste: duplicated.disableCopyPaste,
+          warnOnTabSwitch: duplicated.warnOnTabSwitch,
+          recordCodingHistory: duplicated.recordCodingHistory,
+        },
+        ...prev,
+      ]);
+      pushToast('success', 'Session duplicated');
+    } catch (err: any) {
+      pushToast('error', err.response?.data?.message || 'Could not duplicate session');
+    }
+  }
+
   async function deleteSession(id: string) {
     if (!window.confirm('Delete this session? This cannot be undone.')) return;
     try {
@@ -327,7 +349,7 @@ export default function ProfessorDashboard() {
               <button
                 className="btn btn-ghost btn-sm"
                 style={{ border: '1px solid var(--border)', background: 'var(--surface-alt)', color: 'var(--ink-secondary)' }}
-                onClick={() => pushToast('info', 'Session duplicated — edit the class name to reuse it')}
+                onClick={() => duplicateSession(s)}
               >
                 <Icon name="copy" size={13} /> Duplicate
               </button>

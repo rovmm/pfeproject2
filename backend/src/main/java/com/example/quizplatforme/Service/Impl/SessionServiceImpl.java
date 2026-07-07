@@ -276,6 +276,10 @@ public class SessionServiceImpl implements ISessionService {
                 ? request.getTitle()
                 : original.getTitle() + " (copie)";
 
+        String newFiliere = (request.getFiliere() != null && !request.getFiliere().isBlank())
+                ? request.getFiliere()
+                : original.getFiliere();
+
         Session duplicate = Session.builder()
                 .title(newTitle)
                 .joinCode(generateUniqueJoinCode())
@@ -283,7 +287,7 @@ public class SessionServiceImpl implements ISessionService {
                 .status(SessionStatus.OPEN)
                 .language(original.getLanguage())
                 .exercisePrompt(original.getExercisePrompt())
-                .filiere(request.getFiliere())
+                .filiere(newFiliere)
                 .sessionType(original.getSessionType())
                 .allowAI(original.isAllowAI())
                 .disableCopyPaste(original.isDisableCopyPaste())
