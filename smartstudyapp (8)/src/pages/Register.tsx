@@ -61,7 +61,7 @@ export default function Register() {
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 14 }}>
               <div>
                 <label className="field-label">Full name</label>
-                <input className="input" defaultValue="Léa Moreau" required />
+                <input className="input" placeholder="Full name" required />
               </div>
               <div>
                 <label className="field-label">Institution</label>
@@ -71,7 +71,7 @@ export default function Register() {
             <label className="field-label" style={{ marginTop: 16 }}>
               Email address
             </label>
-            <input className="input" type="email" defaultValue="lea.moreau@univ-lyon.fr" required />
+            <input className="input" type="email" placeholder="example@gmail.com" required />
             <label className="field-label" style={{ marginTop: 16 }}>
               Password
             </label>

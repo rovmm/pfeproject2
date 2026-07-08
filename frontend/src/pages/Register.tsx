@@ -78,11 +78,11 @@ export default function Register() {
 
           <form onSubmit={handleSubmit}>
             <label className="field-label">Full name</label>
-            <input className="input" value={fullName} onChange={(e) => setFullName(e.target.value)} placeholder="Léa Moreau" required />
+            <input className="input" value={fullName} onChange={(e) => setFullName(e.target.value)} placeholder="Full name" required />
             <label className="field-label" style={{ marginTop: 16 }}>
               Email address
             </label>
-            <input className="input" type="email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="lea.moreau@univ-lyon.fr" required />
+            <input className="input" type="email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="example@gmail.com" required />
             <label className="field-label" style={{ marginTop: 16 }}>
               Password
             </label>
