@@ -25,8 +25,8 @@ src/main/java/com/example/quizplatforme/
 │       ├── SessionServiceImpl        Gestion des sessions de cours
 │       ├── CodeExecutionServiceImpl  Orchestration exécution de code
 │       ├── DockerSandboxService      Exécution isolée via Docker
-│       ├── PdfServiceImpl            Résumé PDF via Groq AI
-│       ├── GroqAiServiceImpl         Client API Groq (analyse + résumé)
+│       ├── PdfServiceImpl            Résumé PDF via Grok AI
+│       ├── GrokServiceImpl         Client API Grok (analyse + résumé)
 │       └── DeepSeekServiceImpl       Client API DeepSeek (non utilisé en prod)
 ├── exception/            Hiérarchie d'exceptions métier (ApiException et sous-classes)
 ├── payload/              ErrorResponse uniforme
@@ -35,7 +35,7 @@ src/main/java/com/example/quizplatforme/
 
 **Base de données :** MySQL 8, migrations Flyway (`src/main/resources/db/migration`)  
 **Auth :** JWT HMAC-SHA256 (jjwt), stateless (pas de session HTTP)  
-**AI :** Groq API (modèle llama) pour résumé PDF et analyse de code  
+**AI :** Grok API (modèle llama) pour résumé PDF et analyse de code  
 **Sandbox :** Docker Engine via `docker-java` — chaque exécution dans un conteneur éphémère  
 
 ---
@@ -386,7 +386,7 @@ Toute requête protégée :
 ### 3.5 PDF — `/api/pdf/**`
 
 #### POST /api/pdf/summarize
-- **Description :** Reçoit un fichier PDF, extrait le texte, génère un résumé via l'API Groq, et persiste le résultat.
+- **Description :** Reçoit un fichier PDF, extrait le texte, génère un résumé via l'API Grok, et persiste le résultat.
 - **Auth :** Bearer token
 - **Rôles :** Tout utilisateur authentifié
 - **Content-Type :** `multipart/form-data`
@@ -394,7 +394,7 @@ Toute requête protégée :
 - **Response 200 :**
 ```json
 {
-  "summary":   "Ce document traite de... [résumé généré par Groq]",
+  "summary":   "Ce document traite de... [résumé généré par Grok]",
   "fileName":  "cours_algo_s3.pdf",
   "pageCount": 12
 }
@@ -404,7 +404,7 @@ Toute requête protégée :
 | Code | Message |
 |------|---------|
 | 400 | `"Le fichier n'est pas un PDF valide."` |
-| 500 | `"Erreur lors de la communication avec l'API Groq."` |
+| 500 | `"Erreur lors de la communication avec l'API Grok."` |
 
 ---
 
@@ -452,7 +452,7 @@ Toute requête protégée :
 ### 3.7 AI Analysis — `/api/ai/**`
 
 #### GET /api/ai/analyze/{executionId}
-- **Description :** Récupère un résultat d'exécution de code et demande à Groq une analyse pédagogique en français de l'erreur.
+- **Description :** Récupère un résultat d'exécution de code et demande à Grok une analyse pédagogique en français de l'erreur.
 - **Auth :** Bearer token
 - **Rôles :** Tout utilisateur authentifié
 - **Path param :** `executionId` — Long, ID dans l'historique d'exécution
@@ -580,7 +580,7 @@ CodeExecutionServiceImpl.persistExecutionResult()
 | 3 | `exception/UnauthrizedException.java` | Nom de classe mal orthographié ("Unauthrized" au lieu de "Unauthorized"). | Faible |
 | 4 | `Service/IAuthServicelmpl.java` | Nom d'interface incorrect : `IAuthServicelmpl` (le "l" minuscule devrait être "I" : `IAuthServiceImpl`). Le nom suggère une implémentation, pas une interface. | Faible |
 | 5 | `CodeExecutionController` | N'injecte pas `@AuthenticationPrincipal` — l'email de l'utilisateur est récupéré via `SecurityContextHolder` dans le service. Fonctionne mais rend le test unitaire du service plus difficile. | Faible |
-| 6 | `AiAnalysisResponse.java` | Le commentaire indique "réponse DeepSeek" mais le service utilisé est `IGroqAiService` (Groq). Reste de code d'une migration DeepSeek → Groq non nettoyée. | Cosmétique |
+| 6 | `AiAnalysisResponse.java` | Le commentaire indique "réponse DeepSeek" mais le service utilisé est `IGrokAiService` (Grok). Reste de code d'une migration DeepSeek → Grok non nettoyée. | Cosmétique |
 | 7 | `Service/Impl/PythonExecutionStrategy.java`, `JavaScriptExecutionStrategy.java`, `javaExecutionStrategy.java` | Anciennes stratégies d'exécution directe (sans Docker) marquées `@Deprecated` mais toujours présentes dans le codebase. Elles peuvent être supprimées sans impact. | Faible |
 
 ### 6.2 Endpoints de la spec qui diffèrent de l'implémentation réelle

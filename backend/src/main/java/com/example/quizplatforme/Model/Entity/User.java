@@ -52,6 +52,26 @@ public class User {
     @Column(length = 100,name = "strip_customer_id")
     private String stripCustomerId;
 
+    @Column(name = "email_verified", nullable = false)
+    @Builder.Default
+    private boolean emailVerified = false;
+
+    @Column(name = "otp_code", length = 6)
+    private String otpCode;
+
+    @Column(name = "otp_type", length = 30)
+    private String otpType;
+
+    @Column(name = "otp_expires_at")
+    private LocalDateTime otpExpiresAt;
+
+    @Column(name = "otp_resend_allowed_at")
+    private LocalDateTime otpResendAllowedAt;
+
+    @Column(name = "otp_attempts")
+    @Builder.Default
+    private int otpAttempts = 0;
+
     @Column(name = "created_at",updatable = false)
     private LocalDateTime createdAt = LocalDateTime.now();
 

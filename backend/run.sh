@@ -32,8 +32,8 @@ if (( ${#missing[@]} > 0 )); then
   exit 1
 fi
 
-if [[ -z "${GROQ_API_KEY:-}" ]]; then
-  echo "⚠ GROQ_API_KEY is empty — AI analyze & PDF summarize will be disabled."
+if [[ -z "${GROK_API_KEY:-}" ]]; then
+  echo "WARNING: GROK_API_KEY is empty — AI analyze, PDF summarize & quiz generation will be disabled."
 fi
 
 echo "▶ Starting backend on port ${SERVER_PORT:-8080} …"

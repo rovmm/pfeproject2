@@ -4,6 +4,7 @@ import com.example.quizplatforme.DTO.Response.PdfSummaryResponse;
 import com.example.quizplatforme.DTO.Response.SummaryResponse;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.io.InputStream;
 import java.util.List;
 
 /**
@@ -11,14 +12,14 @@ import java.util.List;
  *
  * <p>Deux opérations sont exposées :
  * <ol>
- *   <li>{@link #summarizePdf} — extrait le texte, appelle l'IA Groq, persiste le résumé</li>
+ *   <li>{@link #summarizePdf} — extrait le texte, appelle l'IA Grok, persiste le résumé</li>
  *   <li>{@link #getPdfHistory} — liste les résumés passés de l'utilisateur authentifié</li>
  * </ol>
  */
 public interface IPdfService {
 
     /**
-     * Extrait le texte du PDF, génère un résumé via l'IA Groq et persiste le résultat
+     * Extrait le texte du PDF, génère un résumé via l'IA Grok et persiste le résultat
      * dans la table {@code pdf_summaries}.
      *
      * @param file      fichier PDF uploadé (multipart/form-data)
@@ -37,4 +38,16 @@ public interface IPdfService {
      * @throws com.example.quizplatforme.exception.ResourceNotFoundException si l'utilisateur est introuvable
      */
     List<PdfSummaryResponse> getPdfHistory(String userEmail);
+
+    /**
+     * Extrait le texte brut d'un flux PDF, sans appel IA ni persistance.
+     *
+     * <p>Utilisé par d'autres services (ex. : Professor Drive) qui ont besoin du
+     * texte d'un PDF déjà stocké sur disque, en dehors du flux d'upload multipart.
+     *
+     * @param inputStream flux du fichier PDF
+     * @return texte extrait, éventuellement vide si le PDF est scanné/protégé
+     * @throws com.example.quizplatforme.exception.BadRequestException si la lecture échoue
+     */
+    String extractTextFromStream(InputStream inputStream);
 }

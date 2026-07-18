@@ -3,6 +3,7 @@ package com.example.quizplatforme.Service;
 import com.example.quizplatforme.DTO.Request.CreateSessionRequest;
 import com.example.quizplatforme.DTO.Request.DuplicateSessionRequest;
 import com.example.quizplatforme.DTO.Request.SubmitCodeRequest;
+import com.example.quizplatforme.DTO.Response.ParticipantPresenceResponse;
 import com.example.quizplatforme.DTO.Response.SessionResponse;
 import com.example.quizplatforme.DTO.Response.StudentSubmissionResponse;
 
@@ -27,4 +28,10 @@ public interface ISessionService {
     List<StudentSubmissionResponse> getSubmissions(Long sessionId, String profEmail);
 
     SessionResponse duplicateSession(Long sessionId, DuplicateSessionRequest request, String profEmail);
+
+    void heartbeat(Long sessionId, String studentEmail);
+
+    List<ParticipantPresenceResponse> getPresence(Long sessionId, String profEmail);
+
+    void deleteSession(Long id, String profEmail);
 }

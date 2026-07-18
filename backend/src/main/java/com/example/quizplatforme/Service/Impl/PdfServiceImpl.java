@@ -6,7 +6,7 @@ import com.example.quizplatforme.Model.Entity.PdfSummary;
 import com.example.quizplatforme.Model.Entity.User;
 import com.example.quizplatforme.Repository.PdfSummaryRepository;
 import com.example.quizplatforme.Repository.UserRepository;
-import com.example.quizplatforme.Service.IGrokService;
+import com.example.quizplatforme.Service.IAiService;
 import com.example.quizplatforme.Service.IPdfService;
 import com.example.quizplatforme.exception.BadRequestException;
 import com.example.quizplatforme.exception.ResourceNotFoundException;
@@ -29,8 +29,8 @@ import java.util.List;
  * <ol>
  *   <li>Validation du fichier (type MIME + extension)</li>
  *   <li>Extraction du texte via Apache PDFBox</li>
- *   <li>Troncature pour l'IA (plafond Groq : ~3 000 tokens)</li>
- *   <li>Appel à l'API Groq pour le résumé</li>
+ *   <li>Troncature pour l'IA (plafond Grok : ~3 000 tokens)</li>
+ *   <li>Appel à l'API Grok pour le résumé</li>
  *   <li>Persistance du résumé dans {@code pdf_summaries}</li>
  *   <li>Retour de {@link SummaryResponse} au contrôleur</li>
  * </ol>
@@ -47,12 +47,12 @@ import java.util.List;
 public class PdfServiceImpl implements IPdfService {
 
     private static final String PDF_CONTENT_TYPE        = "application/pdf";
-    /** Plafond de texte envoyé à Groq (~3 000 tokens → résumé cohérent). */
+    /** Plafond de texte envoyé à Grok (~3 000 tokens → résumé cohérent). */
     private static final int    MAX_AI_TEXT_LENGTH      = 12_000;
     /** Plafond de texte stocké en base (type TEXT MySQL ≈ 65 535 octets). */
     private static final int    MAX_STORED_TEXT_LENGTH  = 60_000;
 
-    private final IGrokService        grokService;
+    private final IAiService          aiService;
     private final UserRepository      userRepository;
     private final PdfSummaryRepository pdfSummaryRepository;
 
@@ -62,7 +62,7 @@ public class PdfServiceImpl implements IPdfService {
      * {@inheritDoc}
      *
      * <p>Le résumé est persisté dans {@code pdf_summaries} après chaque appel
-     * Groq réussi. Une erreur de persistance n'interrompt pas la réponse :
+     * Grok réussi. Une erreur de persistance n'interrompt pas la réponse :
      * elle est uniquement journalisée (non bloquante).
      */
     @Override
@@ -90,13 +90,13 @@ public class PdfServiceImpl implements IPdfService {
                         "Le fichier est peut-être scanné ou protégé.");
             }
 
-            // Texte tronqué envoyé à Groq (fenêtre de contexte)
+            // Texte tronqué envoyé à Grok (fenêtre de contexte)
             String textForAi = extractedText.length() > MAX_AI_TEXT_LENGTH
                     ? extractedText.substring(0, MAX_AI_TEXT_LENGTH)
                     : extractedText;
 
-            log.info("Texte extrait ({} caractères). Envoi à Groq…", textForAi.length());
-            String summary = grokService.summarize(textForAi);
+            log.info("Texte extrait ({} caractères). Envoi à Grok…", textForAi.length());
+            String summary = aiService.summarize(textForAi);
 
             // Texte complet stocké en base (plafond TEXT MySQL)
             String storedText = extractedText.length() > MAX_STORED_TEXT_LENGTH
@@ -213,5 +213,19 @@ public class PdfServiceImpl implements IPdfService {
         PDFTextStripper stripper = new PDFTextStripper();
         stripper.setSortByPosition(true);
         return stripper.getText(document).trim();
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public String extractTextFromStream(InputStream inputStream) {
+        try (PDDocument document = PDDocument.load(inputStream)) {
+            return extractText(document);
+        } catch (IOException e) {
+            log.error("Échec de l'extraction du texte PDF depuis un flux", e);
+            throw new BadRequestException(
+                    "Erreur lors de l'extraction du texte du PDF : " + e.getMessage());
+        }
     }
 }

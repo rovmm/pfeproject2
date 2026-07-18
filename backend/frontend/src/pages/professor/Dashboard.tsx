@@ -1,0 +1,391 @@
+import { useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { useBreadcrumb } from '../../layout/breadcrumb';
+import Icon from '../../components/Icon';
+import Badge from '../../components/Badge';
+import Button from '../../components/Button';
+import SessionTypeCard from '../../components/SessionTypeCard';
+import LanguageSelector from '../../components/LanguageSelector';
+import ToggleSwitch from '../../components/ToggleSwitch';
+import type { SessionType } from '../../lib/mockData';
+import { toBackendLanguage, toProfessorDisplay } from '../../lib/sessionMapper';
+import { sessionApi } from '../../api/session.api';
+import { useToast } from '../../components/Toast';
+
+type ProfessorSession = ReturnType<typeof toProfessorDisplay> & {
+  allowAI: boolean;
+  disableCopyPaste: boolean;
+  warnOnTabSwitch: boolean;
+  recordCodingHistory: boolean;
+};
+
+export default function ProfessorDashboard() {
+  useBreadcrumb(['Dashboard']);
+  const navigate = useNavigate();
+  const pushToast = useToast();
+  const [creating, setCreating] = useState(true);
+  const [type, setType] = useState<SessionType>('code');
+  const [title, setTitle] = useState('');
+  const [filiere, setFiliere] = useState('');
+  const [language, setLanguage] = useState('Python 3.11');
+  const [prompt, setPrompt] = useState('');
+  const [sessions, setSessions] = useState<ProfessorSession[]>([]);
+
+  const [securityOpen, setSecurityOpen] = useState(false);
+  const [allowAI, setAllowAI] = useState(true);
+  const [disableCopyPaste, setDisableCopyPaste] = useState(false);
+  const [warnOnTabSwitch, setWarnOnTabSwitch] = useState(false);
+  const [autoSave, setAutoSave] = useState(true);
+  const [recordCodingHistory, setRecordCodingHistory] = useState(false);
+  const [timeLimitMinutes, setTimeLimitMinutes] = useState(0);
+
+  useEffect(() => {
+    sessionApi
+      .getMySessions()
+      .then((data) => {
+        setSessions(
+          data.map((s) => ({
+            ...toProfessorDisplay(s),
+            allowAI: s.allowAI,
+            disableCopyPaste: s.disableCopyPaste,
+            warnOnTabSwitch: s.warnOnTabSwitch,
+            recordCodingHistory: s.recordCodingHistory,
+          })),
+        );
+        setCreating(data.length === 0);
+      })
+      .catch(() => pushToast('error', 'Could not load your sessions'));
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  async function createSession() {
+    try {
+      const created = await sessionApi.create({
+        title,
+        sessionType: type === 'code' ? 'CODE' : 'QUIZ',
+        language: type === 'code' ? (toBackendLanguage(language) as any) : undefined,
+        exercisePrompt: type === 'code' ? prompt : undefined,
+        filiere,
+        allowAI,
+        disableCopyPaste,
+        warnOnTabSwitch,
+        autoSave,
+        timeLimitMinutes,
+        recordCodingHistory,
+      });
+      setSessions((prev) => [
+        {
+          ...toProfessorDisplay(created),
+          allowAI: created.allowAI,
+          disableCopyPaste: created.disableCopyPaste,
+          warnOnTabSwitch: created.warnOnTabSwitch,
+          recordCodingHistory: created.recordCodingHistory,
+        },
+        ...prev,
+      ]);
+      pushToast('success', 'Session created');
+      setCreating(false);
+      if (type === 'quiz') navigate(`/professor/quiz-creator?sessionId=${created.id}`);
+    } catch (err: any) {
+      pushToast('error', err.response?.data?.message || 'Could not create session');
+    }
+  }
+
+  async function duplicateSession(s: ProfessorSession) {
+    try {
+      const duplicated = await sessionApi.duplicateSession(Number(s.id), {
+        title: `${s.title} (copy)`,
+        filiere: s.filiere,
+      });
+      setSessions((prev) => [
+        {
+          ...toProfessorDisplay(duplicated),
+          allowAI: duplicated.allowAI,
+          disableCopyPaste: duplicated.disableCopyPaste,
+          warnOnTabSwitch: duplicated.warnOnTabSwitch,
+          recordCodingHistory: duplicated.recordCodingHistory,
+        },
+        ...prev,
+      ]);
+      pushToast('success', 'Session duplicated');
+    } catch (err: any) {
+      pushToast('error', err.response?.data?.message || 'Could not duplicate session');
+    }
+  }
+
+  async function deleteSession(id: string) {
+    if (!window.confirm('Delete this session? This cannot be undone.')) return;
+    try {
+      await sessionApi.delete(Number(id));
+      setSessions((prev) => prev.filter((s) => s.id !== id));
+      pushToast('success', 'Session deleted');
+    } catch (err: any) {
+      pushToast('error', err.response?.data?.message || 'Could not delete session');
+    }
+  }
+
+  return (
+    <div style={{ padding: '26px 34px' }}>
+      <div style={{ display: 'flex', alignItems: 'center', marginBottom: 20 }}>
+        <h1 style={{ fontFamily: 'var(--font-heading)', fontWeight: 800, fontSize: 26, color: 'var(--ink)', margin: 0 }}>Your sessions</h1>
+        {!creating && (
+          <Button variant="primary" size="sm" style={{ marginLeft: 'auto' }} onClick={() => setCreating(true)}>
+            + Create Session
+          </Button>
+        )}
+      </div>
+
+      {creating && (
+        <div className="card" style={{ padding: 24, marginBottom: 26, boxShadow: 'var(--shadow-card)' }}>
+          <div style={{ fontFamily: 'var(--font-heading)', fontWeight: 700, fontSize: 17, color: 'var(--ink)', marginBottom: 16 }}>Create a new session</div>
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 14, marginBottom: 18 }}>
+            <SessionTypeCard
+              icon="code"
+              title="Code"
+              description="Exercise prompt + language"
+              selected={type === 'code'}
+              onClick={() => setType('code')}
+            />
+            <SessionTypeCard
+              icon="lightbulb"
+              title="Quiz"
+              description="MCQ, manual or AI"
+              selected={type === 'quiz'}
+              onClick={() => setType('quiz')}
+            />
+          </div>
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 14, marginBottom: 14 }}>
+            <div>
+              <label className="field-label">Title</label>
+              <input className="input" placeholder="Session title" value={title} onChange={(e) => setTitle(e.target.value)} />
+            </div>
+            <div>
+              <label className="field-label">Filière (class)</label>
+              <input className="input" placeholder="Select a class" value={filiere} onChange={(e) => setFiliere(e.target.value)} />
+            </div>
+          </div>
+          {type === 'code' && (
+            <>
+              <div style={{ marginBottom: 14 }}>
+                <label className="field-label">Language</label>
+                <LanguageSelector value={language} onChange={setLanguage} />
+              </div>
+              <div style={{ marginBottom: 18 }}>
+                <label className="field-label">Exercise prompt</label>
+                <textarea
+                  className="input"
+                  style={{ height: 70, resize: 'none' }}
+                  placeholder="Enter the exercise description..."
+                  value={prompt}
+                  onChange={(e) => setPrompt(e.target.value)}
+                />
+              </div>
+            </>
+          )}
+          {type === 'quiz' && (
+            <p style={{ fontSize: 13, color: 'var(--ink-muted)', marginBottom: 18 }}>
+              You'll add questions in the Quiz Creator after creating this session.
+            </p>
+          )}
+
+          <div style={{ marginBottom: 18 }}>
+            <button
+              type="button"
+              onClick={() => setSecurityOpen((o) => !o)}
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: 8,
+                width: '100%',
+                background: 'var(--surface-alt)',
+                border: '1px solid var(--border)',
+                borderRadius: 11,
+                padding: '11px 14px',
+                cursor: 'pointer',
+                fontFamily: 'var(--font-heading)',
+                fontWeight: 700,
+                fontSize: 13.5,
+                color: 'var(--ink)',
+              }}
+            >
+              <span>Security Options</span>
+              <span
+                style={{
+                  marginLeft: 'auto',
+                  display: 'flex',
+                  transform: securityOpen ? 'rotate(180deg)' : 'rotate(0deg)',
+                  transition: 'transform 0.15s ease',
+                  color: 'var(--ink-muted)',
+                }}
+              >
+                <Icon name="chevron-down" size={14} />
+              </span>
+            </button>
+            {securityOpen && (
+              <div style={{ border: '1px solid var(--border)', borderTop: 'none', borderRadius: '0 0 11px 11px', padding: '4px 14px' }}>
+                <ToggleSwitch
+                  label="Allow Solve"
+                  description="Students can use the AI chat during this session"
+                  checked={allowAI}
+                  onChange={setAllowAI}
+                />
+                <ToggleSwitch
+                  label="Disable Copy/Paste"
+                  description="Blocks Ctrl+C, Ctrl+V, and right-click on student devices"
+                  checked={disableCopyPaste}
+                  onChange={setDisableCopyPaste}
+                />
+                <ToggleSwitch
+                  label="Warn on Tab Switch"
+                  description="Students get a warning when they leave the page"
+                  checked={warnOnTabSwitch}
+                  onChange={setWarnOnTabSwitch}
+                />
+                <ToggleSwitch
+                  label="Auto Save Code"
+                  description="Student code saved automatically every 30 seconds"
+                  checked={autoSave}
+                  onChange={setAutoSave}
+                />
+                <ToggleSwitch
+                  label="Record Coding History"
+                  description="Track every edit (viewable by professor)"
+                  checked={recordCodingHistory}
+                  onChange={setRecordCodingHistory}
+                />
+                <div style={{ padding: '12px 0' }}>
+                  <label className="field-label">Time Limit (minutes) — 0 = no limit</label>
+                  <input
+                    className="input"
+                    type="number"
+                    min={0}
+                    max={300}
+                    value={timeLimitMinutes}
+                    onChange={(e) => setTimeLimitMinutes(Math.max(0, Math.min(300, Number(e.target.value))))}
+                  />
+                </div>
+              </div>
+            )}
+          </div>
+
+          <div style={{ display: 'flex', gap: 12 }}>
+            <Button onClick={createSession}>
+              {type === 'code' ? 'Create & get code' : 'Create & add questions'}
+            </Button>
+            <Button variant="secondary" style={{ border: '1.5px solid var(--border-input)', color: 'var(--ink-muted)' }} onClick={() => setCreating(false)}>
+              Cancel
+            </Button>
+          </div>
+        </div>
+      )}
+
+      {sessions.length === 0 && !creating && (
+        <div
+          className="card"
+          style={{
+            padding: 40,
+            textAlign: 'center',
+            color: 'var(--ink-muted)',
+            fontSize: 14,
+            boxShadow: 'var(--shadow-card)',
+          }}
+        >
+          No sessions created yet. Create your first coding or quiz session.
+        </div>
+      )}
+
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2,1fr)', gap: 18 }}>
+        {sessions.map((s) => (
+          <div key={s.id} className="card card-pad">
+            <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 12 }}>
+              <Badge kind={s.status}>{s.status.toUpperCase()}</Badge>
+              <span className="badge badge-chip" style={{ color: 'var(--ink-secondary)', background: 'var(--surface-muted)' }}>
+                {s.filiere}
+              </span>
+              <Badge kind={s.type === 'code' ? 'python' : 'quiz'}>{s.type === 'code' ? s.language : 'QUIZ'}</Badge>
+            </div>
+            <div style={{ fontFamily: 'var(--font-heading)', fontWeight: 700, fontSize: 16, color: 'var(--ink)' }}>{s.title}</div>
+            {(!s.allowAI || s.disableCopyPaste || s.warnOnTabSwitch || s.recordCodingHistory) && (
+              <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6, marginTop: 10 }}>
+                {!s.allowAI && (
+                  <span className="badge badge-chip" style={{ display: 'inline-flex', alignItems: 'center', gap: 4, color: 'var(--ink-secondary)', background: 'var(--surface-muted)' }}>
+                    <Icon name="x-circle" size={11} /> Solve disabled
+                  </span>
+                )}
+                {s.disableCopyPaste && (
+                  <span className="badge badge-chip" style={{ display: 'inline-flex', alignItems: 'center', gap: 4, color: 'var(--ink-secondary)', background: 'var(--surface-muted)' }}>
+                    <Icon name="lock" size={11} /> Copy/paste disabled
+                  </span>
+                )}
+                {s.warnOnTabSwitch && (
+                  <span className="badge badge-chip" style={{ display: 'inline-flex', alignItems: 'center', gap: 4, color: 'var(--ink-secondary)', background: 'var(--surface-muted)' }}>
+                    <Icon name="eye" size={11} /> Tab monitoring
+                  </span>
+                )}
+                {s.recordCodingHistory && (
+                  <span className="badge badge-chip" style={{ display: 'inline-flex', alignItems: 'center', gap: 4, color: 'var(--ink-secondary)', background: 'var(--surface-muted)' }}>
+                    <Icon name="bar-chart" size={11} /> History recorded
+                  </span>
+                )}
+              </div>
+            )}
+            <div style={{ display: 'flex', alignItems: 'center', gap: 12, margin: '16px 0' }}>
+              <div
+                style={{
+                  fontFamily: 'var(--font-mono)',
+                  fontWeight: 700,
+                  fontSize: 26,
+                  letterSpacing: '0.14em',
+                  color: 'var(--navy)',
+                  background: 'var(--tint-blue-highlight)',
+                  border: '1px dashed var(--border-dashed)',
+                  borderRadius: 12,
+                  padding: '8px 18px',
+                }}
+              >
+                {s.joinCode}
+              </div>
+              <button
+                className="btn btn-ghost btn-sm"
+                style={{ border: '1px solid var(--border)' }}
+                onClick={() => {
+                  navigator.clipboard?.writeText(s.joinCode);
+                  pushToast('info', 'Code copied');
+                }}
+              >
+                <Icon name="copy" size={13} /> Copy
+              </button>
+            </div>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: 13, color: 'var(--ink-muted)' }}>
+              <Icon name="user-check" size={15} /> {s.studentsJoined} students joined
+            </div>
+            <div style={{ display: 'flex', gap: 10, marginTop: 16 }}>
+              <Button
+                variant="secondary"
+                size="sm"
+                full
+                onClick={() => navigate(s.type === 'code' ? `/professor/session/${s.id}/code` : `/professor/session/${s.id}/quiz`)}
+              >
+                Open live view
+              </Button>
+              <button
+                className="btn btn-ghost btn-sm"
+                style={{ border: '1px solid var(--border)', background: 'var(--surface-alt)', color: 'var(--ink-secondary)' }}
+                onClick={() => duplicateSession(s)}
+              >
+                <Icon name="copy" size={13} /> Duplicate
+              </button>
+              <button
+                className="btn btn-ghost btn-sm"
+                style={{ border: '1px solid var(--border)', background: 'var(--surface-alt)', color: 'var(--icon-danger-muted)' }}
+                onClick={() => deleteSession(s.id)}
+              >
+                <Icon name="trash" size={13} /> Delete
+              </button>
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}

@@ -1,0 +1,14 @@
+# Environment
+**/.env
+
+# Node
+**/node_modules/
+**/dist/
+**/build/
+
+# Claude
+.claude/
+
+# IDE
+.vscode/
+.idea/

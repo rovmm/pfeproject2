@@ -34,4 +34,7 @@ public class JwtResponse {
 
     /** Plan tarifaire : FREE ou PREMIUM. */
     private String plan;
+
+    /** Indique si l'adresse e-mail a été vérifiée via le code OTP. */
+    private boolean emailVerified;
 }

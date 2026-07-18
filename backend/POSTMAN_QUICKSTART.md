@@ -210,10 +210,10 @@ Le token du STUDENT doit être dans `{{token}}`.
 
 **Vérification :**
 - Status = 200 ✅
-- `summary` non vide ✅ (le résumé Groq est présent)
+- `summary` non vide ✅ (le résumé Grok est présent)
 - `fileName` correspond au fichier soumis ✅
 
-> **Si la clé Groq est absente (`GROQ_API_KEY` non défini) :** vous obtiendrez une erreur 500. Définissez la variable d'environnement avant de lancer l'application.
+> **Si la clé Grok est absente (`GROK_API_KEY` non défini) :** vous obtiendrez une erreur 500. Définissez la variable d'environnement avant de lancer l'application.
 
 **Vérifier l'historique :**
 
@@ -317,6 +317,6 @@ Le script sauvegarde `{{token}}` avec le token ADMIN.
 | `401 Authentification requise` | Token absent ou expiré | Relancez Login, copiez le nouveau token |
 | `403 Accès refusé` | Mauvais rôle pour l'endpoint | Vérifiez que vous utilisez le bon compte (PROF/STUDENT/ADMIN) |
 | `Docker connection refused` | Daemon Docker non démarré | `sudo systemctl start docker` |
-| `500 Erreur Groq` | `GROQ_API_KEY` absent | Définissez la variable d'environnement et redémarrez l'app |
+| `500 Erreur Grok` | `GROK_API_KEY` absent | Définissez la variable d'environnement et redémarrez l'app |
 | `400 Email déjà utilisé` | Compte déjà créé | Utilisez Login au lieu de Register |
 | Session `404` au join | `sessionCode` mal copié | Vérifiez `{{sessionCode}}` dans les variables d'environnement |

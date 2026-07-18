@@ -1,0 +1,9 @@
+ALTER TABLE users
+  ADD COLUMN email_verified BOOLEAN NOT NULL DEFAULT FALSE,
+  ADD COLUMN otp_code VARCHAR(6) DEFAULT NULL,
+  ADD COLUMN otp_type VARCHAR(30) DEFAULT NULL,
+  ADD COLUMN otp_expires_at DATETIME DEFAULT NULL,
+  ADD COLUMN otp_resend_allowed_at DATETIME DEFAULT NULL,
+  ADD COLUMN otp_attempts INT DEFAULT 0;
+
+UPDATE users SET email_verified = TRUE WHERE email_verified = FALSE;

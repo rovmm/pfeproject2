@@ -1,5 +1,6 @@
 package com.example.quizplatforme.Model;
 
+import com.example.quizplatforme.Model.Entity.Session;
 import com.example.quizplatforme.Model.Entity.User;
 import jakarta.persistence.*;
 import lombok.*;
@@ -44,6 +45,16 @@ public class ExecutionResult {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
+
+    /**
+     * Session à laquelle cette exécution est rattachée, ou {@code null} si l'exécution
+     * a été lancée hors session (éditeur de code autonome via {@code /api/code/execute}).
+     * Permet à {@code GET /api/ai/analyze/{executionId}} de faire respecter le flag
+     * {@code allowAI} de la session.
+     */
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "session_id")
+    private Session session;
 
     @Column(nullable = false)
     private String language;

@@ -1,5 +1,6 @@
 package com.example.quizplatforme.controller;
 
+import com.example.quizplatforme.DTO.Request.CreateQuestionRequest;
 import com.example.quizplatforme.DTO.Request.CreateQuizRequest;
 import com.example.quizplatforme.DTO.Request.SubmitQuizAnswersRequest;
 import com.example.quizplatforme.DTO.Response.LeaderboardResponse;
@@ -58,6 +59,24 @@ public class QuizController {
                 .body(quizService.generateQuizFromPdf(
                         sessionId, file, numberOfQuestions, title, description,
                         userDetails.getUsername()));
+    }
+
+    /**
+     * POST /api/sessions/{sessionId}/quiz/generate-preview — PROF only
+     * Multipart: file (PDF) + param numberOfQuestions.
+     * Extracts the PDF text and asks the AI for questions WITHOUT persisting
+     * anything, so the professor can review/edit them before saving via /create.
+     */
+    @PostMapping(value = "/generate-preview", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public ResponseEntity<List<CreateQuestionRequest>> generatePreview(
+            @PathVariable Long sessionId,
+            @RequestPart("file") MultipartFile file,
+            @RequestParam(defaultValue = "5") int numberOfQuestions,
+            @AuthenticationPrincipal UserDetails userDetails) {
+
+        return ResponseEntity.ok(
+                quizService.generateQuizQuestionsPreview(
+                        sessionId, file, numberOfQuestions, userDetails.getUsername()));
     }
 
     /**

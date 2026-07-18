@@ -62,6 +62,30 @@ public class Session {
     @Builder.Default
     private String sessionType = "CODE";
 
+    @Column(name = "allow_ai", nullable = false)
+    @Builder.Default
+    private boolean allowAI = true;
+
+    @Column(name = "disable_copy_paste", nullable = false)
+    @Builder.Default
+    private boolean disableCopyPaste = false;
+
+    @Column(name = "warn_on_tab_switch", nullable = false)
+    @Builder.Default
+    private boolean warnOnTabSwitch = false;
+
+    @Column(name = "auto_save", nullable = false)
+    @Builder.Default
+    private boolean autoSave = true;
+
+    @Column(name = "time_limit_minutes", nullable = false)
+    @Builder.Default
+    private int timeLimitMinutes = 0;
+
+    @Column(name = "record_coding_history", nullable = false)
+    @Builder.Default
+    private boolean recordCodingHistory = false;
+
     @CreationTimestamp
     @Column(name = "created_at", updatable = false)
     private LocalDateTime createdAt;

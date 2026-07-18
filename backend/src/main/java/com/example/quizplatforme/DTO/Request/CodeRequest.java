@@ -18,4 +18,11 @@ public class CodeRequest {
 
     /** Entrée standard optionnelle transmise au programme lors de l'exécution. */
     private String stdin;
+
+    /**
+     * Session dans laquelle ce code est exécuté, ou {@code null} si l'exécution
+     * est autonome (hors session). Rattache le résultat à la session pour que
+     * l'analyse IA respecte le flag {@code allowAI} de celle-ci.
+     */
+    private Long sessionId;
 }

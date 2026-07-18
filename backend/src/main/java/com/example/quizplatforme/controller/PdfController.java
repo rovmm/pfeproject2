@@ -22,7 +22,7 @@ import java.util.List;
  * Endpoints de traitement et d'historique des résumés PDF.
  *
  * <ul>
- *   <li>{@code POST /api/pdf/summarize} — génère un résumé via Groq et le persiste</li>
+ *   <li>{@code POST /api/pdf/summarize} — génère un résumé via Grok et le persiste</li>
  *   <li>{@code GET  /api/pdf/history}   — historique des résumés de l'utilisateur connecté</li>
  * </ul>
  *
@@ -42,7 +42,7 @@ public class PdfController {
     // ── POST /api/pdf/summarize ────────────────────────────────────────────────
 
     /**
-     * Reçoit un fichier PDF, génère un résumé via l'IA Groq et le persiste en base.
+     * Reçoit un fichier PDF, génère un résumé via l'IA Grok et le persiste en base.
      *
      * @param file        fichier PDF en {@code multipart/form-data} (champ {@code file})
      * @param userDetails principal Spring Security de l'utilisateur authentifié

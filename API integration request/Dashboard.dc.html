@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;500;600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; }
+  body { margin: 0; }
+</style>
+</helmet>
+<div style="display:flex; height:100vh; min-height:760px; width:100%; font-family:'Inter',system-ui,sans-serif; background:#f5f4f8; color:#1c1a2b; overflow:hidden;">
+
+  <!-- SIDEBAR -->
+  <aside style="width:288px; flex-shrink:0; background:#ffffff; border-right:1px solid #ece9f3; display:flex; flex-direction:column; padding:22px 18px; overflow-y:auto;">
+    <!-- logo -->
+    <div style="display:flex; align-items:center; gap:10px; padding:2px 4px 22px;">
+      <div style="width:34px; height:34px; border-radius:10px; background:linear-gradient(135deg,#5b53e0,#8a4dea); display:flex; align-items:center; justify-content:center; color:#fff; font-family:'Sora'; font-weight:800; font-size:18px;">c</div>
+      <span style="font-family:'Sora'; font-weight:800; font-size:22px; letter-spacing:-0.02em; color:#3a2f8f;">curio</span>
+    </div>
+
+    <!-- profile -->
+    <div style="padding:2px 6px 6px;">
+      <div style="font-family:'Sora'; font-weight:700; font-size:15px;">Léa Moreau</div>
+      <div style="font-size:12.5px; color:#8b869c; margin-top:2px;">Lycée Ibn Battûta</div>
+      <div style="display:inline-block; margin-top:9px; font-size:11px; font-weight:600; color:#6a5cff; background:#efeaff; padding:4px 10px; border-radius:999px;">Educator account</div>
+    </div>
+
+    <!-- trial card -->
+    <div style="margin:18px 0 10px; background:linear-gradient(135deg,#f3f0ff,#faf5ff); border:1px solid #eae3fb; border-radius:16px; padding:16px 16px 15px;">
+      <div style="display:flex; align-items:baseline; gap:6px;">
+        <span style="font-family:'Sora'; font-weight:800; font-size:34px; line-height:1; color:#4a3fb5;">28</span>
+        <span style="font-size:12px; font-weight:700; color:#8b7fd6; letter-spacing:0.04em;">DAYS</span>
+      </div>
+      <div style="font-size:13px; color:#6f6a82; margin-top:6px; line-height:1.4;">remaining in your free trial.</div>
+      <a href="#" style="display:inline-flex; align-items:center; gap:5px; margin-top:10px; font-size:13px; font-weight:600; color:#6a5cff; text-decoration:none;">Learn more <span style="font-size:12px;">↗</span></a>
+    </div>
+
+    <!-- create button -->
+    <button style="margin:8px 0 20px; width:100%; border:none; cursor:pointer; background:linear-gradient(135deg,#5b53e0,#8a4dea); color:#fff; font-family:'Sora'; font-weight:600; font-size:15px; padding:14px; border-radius:14px; box-shadow:0 8px 20px -6px rgba(91,83,224,0.55); display:flex; align-items:center; justify-content:center; gap:8px;" style-hover="filter:brightness(1.06)">
+      <span style="font-size:18px; line-height:1;">＋</span> Create
+    </button>
+
+    <!-- nav -->
+    <nav style="display:flex; flex-direction:column; gap:2px;">
+      <sc-for list="{{ nav }}" as="item" hint-placeholder-count="6">
+        <a href="#" style="{{ item.style }}" style-hover="background:#f4f2fb">
+          <span style="font-size:17px; width:22px; text-align:center;">{{ item.icon }}</span>
+          <span>{{ item.label }}</span>
+          <sc-if value="{{ item.badge }}" hint-placeholder-val="">
+            <span style="margin-left:auto; font-size:9.5px; font-weight:700; letter-spacing:0.06em; color:#fff; background:#e0654a; padding:2px 6px; border-radius:5px;">{{ item.badge }}</span>
+          </sc-if>
+        </a>
+      </sc-for>
+    </nav>
+  </aside>
+
+  <!-- MAIN -->
+  <main style="flex:1; display:flex; flex-direction:column; min-width:0;">
+    <!-- top bar -->
+    <header style="display:flex; align-items:center; gap:16px; padding:20px 34px; background:#fff; border-bottom:1px solid #ece9f3;">
+      <div style="flex:1; display:flex; align-items:center; gap:10px; background:#f5f4f8; border:1px solid #ece9f3; border-radius:12px; padding:11px 16px; max-width:640px;">
+        <span style="color:#a49fb5; font-size:15px;">⚲</span>
+        <input placeholder="Search the Curio library" style="border:none; background:transparent; outline:none; font-family:'Inter'; font-size:14.5px; color:#1c1a2b; width:100%;" />
+        <div style="display:flex; align-items:center; gap:5px; font-size:13px; font-weight:600; color:#6a5cff; border-left:1px solid #e2def0; padding-left:12px; white-space:nowrap;">Curio library <span style="font-size:10px;">▾</span></div>
+      </div>
+      <button style="border:1.5px solid #6a5cff; background:#fff; color:#6a5cff; font-family:'Sora'; font-weight:600; font-size:13.5px; padding:10px 18px; border-radius:11px; cursor:pointer; white-space:nowrap;" style-hover="background:#f3f0ff">Enter code</button>
+      <button style="width:42px; height:42px; border-radius:11px; border:1px solid #ece9f3; background:#fff; cursor:pointer; font-size:16px; color:#6f6a82;">🔔</button>
+    </header>
+
+    <!-- scroll body -->
+    <div style="flex:1; overflow-y:auto; padding:0 34px 40px;">
+
+      <!-- hero -->
+      <section style="text-align:center; padding:60px 0 46px;">
+        <h1 style="font-family:'Sora'; font-weight:800; font-size:44px; letter-spacing:-0.025em; margin:0; color:#2b2450;">What will you teach today?</h1>
+        <div style="margin:34px auto 0; max-width:760px; display:flex; align-items:center; gap:14px; background:#fff; border:1px solid #ece9f3; border-radius:18px; padding:6px 6px 6px 26px; box-shadow:0 18px 40px -22px rgba(43,36,80,0.28);">
+          <input placeholder="Search for activities on any topic" style="border:none; outline:none; background:transparent; flex:1; font-family:'Inter'; font-size:17px; color:#1c1a2b; padding:16px 0;" />
+          <button style="width:52px; height:52px; flex-shrink:0; border:none; border-radius:14px; background:linear-gradient(135deg,#5b53e0,#8a4dea); color:#fff; font-size:20px; cursor:pointer; box-shadow:0 8px 18px -6px rgba(91,83,224,0.5);">→</button>
+        </div>
+      </section>
+
+      <!-- categories -->
+      <section style="display:grid; grid-template-columns:repeat(8,1fr); gap:8px; max-width:960px; margin:0 auto 8px;">
+        <sc-for list="{{ categories }}" as="cat" hint-placeholder-count="8">
+          <a href="#" style="text-decoration:none; display:flex; flex-direction:column; align-items:center; gap:12px; padding:14px 6px; border-radius:16px;" style-hover="background:#fff">
+            <div style="width:76px; height:76px; border-radius:50%; background:{{ cat.bg }}; display:flex; align-items:center; justify-content:center; font-size:34px;">{{ cat.icon }}</div>
+            <span style="font-size:13px; font-weight:600; color:#4a4560; text-align:center;">{{ cat.label }}</span>
+          </a>
+        </sc-for>
+      </section>
+
+      <!-- templates -->
+      <section style="max-width:1040px; margin:40px auto 0;">
+        <div style="display:flex; align-items:center; margin-bottom:18px;">
+          <span style="font-size:18px; margin-right:9px;">★</span>
+          <h2 style="font-family:'Sora'; font-weight:700; font-size:22px; margin:0; color:#2b2450;">Templates</h2>
+          <a href="#" style="margin-left:auto; display:flex; align-items:center; gap:5px; font-size:13.5px; font-weight:600; color:#6a5cff; text-decoration:none;">See more <span>›</span></a>
+        </div>
+        <div style="display:grid; grid-template-columns:repeat(3,1fr); gap:20px;">
+          <sc-for list="{{ templates }}" as="tpl" hint-placeholder-count="3">
+            <div style="background:#fff; border:1px solid #ece9f3; border-radius:18px; overflow:hidden; cursor:pointer;" style-hover="box-shadow:0 16px 34px -20px rgba(43,36,80,0.35); transform:translateY(-3px)">
+              <div style="height:130px; background:{{ tpl.bg }}; display:flex; align-items:center; justify-content:center; font-size:44px;">{{ tpl.icon }}</div>
+              <div style="padding:15px 17px 17px;">
+                <div style="font-family:'Sora'; font-weight:600; font-size:15.5px; color:#2b2450;">{{ tpl.title }}</div>
+                <div style="font-size:12.5px; color:#8b869c; margin-top:5px;">{{ tpl.meta }}</div>
+              </div>
+            </div>
+          </sc-for>
+        </div>
+      </section>
+
+    </div>
+  </main>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script>
+class Component extends DCLogic {
+  renderVals() {
+    const navBase = "display:flex; align-items:center; gap:13px; padding:11px 12px; border-radius:11px; font-size:14.5px; font-weight:500; color:#4a4560; text-decoration:none;";
+    const navActive = "display:flex; align-items:center; gap:13px; padding:11px 12px; border-radius:11px; font-size:14.5px; font-weight:600; color:#5b53e0; text-decoration:none; background:#efeaff;";
+    return {
+      nav: [
+        { icon: "◎", label: "Explore", style: navActive },
+        { icon: "▤", label: "My library", style: navBase },
+        { icon: "✦", label: "Curio AI", style: navBase, badge: "NEW" },
+        { icon: "▦", label: "Reports", style: navBase },
+        { icon: "◫", label: "Classes", style: navBase },
+        { icon: "⚙", label: "Settings", style: navBase },
+      ],
+      categories: [
+        { icon: "📐", label: "Math", bg: "#fdeede" },
+        { icon: "🔤", label: "English", bg: "#e9f0fd" },
+        { icon: "🌍", label: "Social Studies", bg: "#eafaf0" },
+        { icon: "💬", label: "Languages", bg: "#f0eafd" },
+        { icon: "🧪", label: "Science", bg: "#fdeaf1" },
+        { icon: "💻", label: "Computers", bg: "#eaf6fd" },
+        { icon: "🧭", label: "Career Ed", bg: "#fdf3e6" },
+        { icon: "🎨", label: "Creative Arts", bg: "#f3ecfb" },
+      ],
+      templates: [
+        { icon: "🏆", title: "Team Challenge", meta: "Multiplayer • 12 questions", bg: "linear-gradient(135deg,#f3edff,#e8e0ff)" },
+        { icon: "⚡", title: "Quick Recap", meta: "Solo • 8 questions", bg: "linear-gradient(135deg,#fff0e6,#ffe3d1)" },
+        { icon: "🧩", title: "Concept Match", meta: "Pairs • 10 questions", bg: "linear-gradient(135deg,#e6f6ee,#d6f0e2)" },
+      ],
+    };
+  }
+}
+</script>
+</body>
+</html>

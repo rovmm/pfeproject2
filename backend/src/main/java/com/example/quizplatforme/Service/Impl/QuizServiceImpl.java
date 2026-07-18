@@ -8,6 +8,7 @@ import com.example.quizplatforme.DTO.Response.*;
 import com.example.quizplatforme.Model.Entity.*;
 import com.example.quizplatforme.Model.Enum.RoleEnum;
 import com.example.quizplatforme.Repository.*;
+import com.example.quizplatforme.Service.IAiService;
 import com.example.quizplatforme.Service.IQuizService;
 import com.example.quizplatforme.exception.BadRequestException;
 import com.example.quizplatforme.exception.ForbiddenException;
@@ -17,14 +18,9 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.pdfbox.pdmodel.PDDocument;
 import org.apache.pdfbox.text.PDFTextStripper;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
-import org.springframework.web.reactive.function.client.WebClient;
-import org.springframework.web.reactive.function.client.WebClientResponseException;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -32,6 +28,7 @@ import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -53,10 +50,7 @@ public class QuizServiceImpl implements IQuizService {
     private final QuizAttemptRepository  attemptRepository;
     private final StudentAnswerRepository answerRepository;
 
-    private final WebClient webClient;
-
-    @Value("${grok.api.key}")
-    private String apiKey;
+    private final IAiService aiService;
 
     private final ObjectMapper objectMapper = new ObjectMapper();
 
@@ -67,7 +61,7 @@ public class QuizServiceImpl implements IQuizService {
             QuestionRepository questionRepository,
             QuizAttemptRepository attemptRepository,
             StudentAnswerRepository answerRepository,
-            @Value("${grok.api.url}") String apiUrl) {
+            IAiService aiService) {
 
         this.sessionRepository  = sessionRepository;
         this.userRepository     = userRepository;
@@ -75,11 +69,7 @@ public class QuizServiceImpl implements IQuizService {
         this.questionRepository = questionRepository;
         this.attemptRepository  = attemptRepository;
         this.answerRepository   = answerRepository;
-
-        this.webClient = WebClient.builder()
-                .baseUrl(apiUrl)
-                .defaultHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
-                .build();
+        this.aiService          = aiService;
     }
 
     // ── createQuiz ─────────────────────────────────────────────────────────────
@@ -131,6 +121,36 @@ public class QuizServiceImpl implements IQuizService {
 
         Quiz quiz = buildAndSaveQuiz(session, title, description, 0, generatedQuestions);
         return toProfResponse(quiz);
+    }
+
+    // ── generateQuizQuestionsPreview ───────────────────────────────────────────
+
+    @Override
+    @Transactional(readOnly = true)
+    public List<CreateQuestionRequest> generateQuizQuestionsPreview(Long sessionId, MultipartFile file,
+                                                                     int numberOfQuestions, String profEmail) {
+        Session session = getSessionOrThrow(sessionId);
+        verifyProfOwnership(session, profEmail);
+        verifyQuizType(session);
+        verifyNoExistingQuiz(sessionId);
+
+        if (numberOfQuestions < 1 || numberOfQuestions > MAX_QUESTIONS) {
+            throw new BadRequestException(
+                    "Nombre de questions invalide. Maximum autorisé : " + MAX_QUESTIONS + ".");
+        }
+
+        String pdfText = extractPdfText(file);
+        if (pdfText.isBlank()) {
+            throw new BadRequestException(
+                    "Impossible d'extraire le texte du PDF. "
+                    + "Le fichier est peut-être scanné ou protégé.");
+        }
+
+        String truncated = pdfText.length() > MAX_PDF_CHARS
+                ? pdfText.substring(0, MAX_PDF_CHARS)
+                : pdfText;
+
+        return callAiForQuiz(truncated, numberOfQuestions);
     }
 
     // ── getQuizForStudent ──────────────────────────────────────────────────────
@@ -276,6 +296,9 @@ public class QuizServiceImpl implements IQuizService {
 
         List<QuizAttempt> attempts =
                 attemptRepository.findByQuizIdOrderByPercentageDesc(quiz.getId());
+        attempts.sort(
+                Comparator.comparing(QuizAttempt::getPercentage).reversed()
+                        .thenComparing(QuizAttempt::getCompletedAt));
 
         List<LeaderboardEntry> entries = new ArrayList<>();
         for (int i = 0; i < attempts.size(); i++) {
@@ -482,51 +505,17 @@ public class QuizServiceImpl implements IQuizService {
             numberOfQuestions, pdfText
         );
 
-        Map<String, Object> requestBody = Map.of(
-            "model",    "deepseek-r1:14b",
-            "messages", List.of(
-                Map.of("role",    "system",
-                       "content", "Tu es un professeur expert en création de QCM pédagogiques. "
-                                + "Tu réponds UNIQUEMENT avec du JSON valide, sans texte supplémentaire."),
-                Map.of("role",    "user",
-                       "content", prompt)
-            ),
-            "max_tokens",  4096,
-            "temperature", 0.4
-        );
+        String systemPrompt = "Tu es un professeur expert en création de QCM pédagogiques. "
+                + "Tu réponds UNIQUEMENT avec du JSON valide, sans texte supplémentaire.";
 
         String rawResponse;
         try {
             log.info("Appel IA pour génération de {} questions QCM…", numberOfQuestions);
-
-            Map<?, ?> response = webClient.post()
-                    .uri("/chat/completions")
-                    .header(HttpHeaders.AUTHORIZATION, "Bearer " + apiKey)
-                    .bodyValue(requestBody)
-                    .retrieve()
-                    .bodyToMono(Map.class)
-                    .block();
-
-            if (response == null) {
-                throw new BadRequestException("Impossible de générer le quiz. Erreur de communication avec l'IA.");
-            }
-
-            List<?> choices = (List<?>) response.get("choices");
-            if (choices == null || choices.isEmpty()) {
-                throw new BadRequestException("Impossible de générer le quiz. Erreur de communication avec l'IA.");
-            }
-
-            Map<?, ?> firstChoice = (Map<?, ?>) choices.get(0);
-            Map<?, ?> message     = (Map<?, ?>) firstChoice.get("message");
-            rawResponse = (String) message.get("content");
-
+            rawResponse = aiService.chat(systemPrompt, null, prompt);
             log.info("Réponse IA reçue ({} caractères).", rawResponse != null ? rawResponse.length() : 0);
-
-        } catch (WebClientResponseException e) {
-            log.error("Erreur API IA : {} — {}", e.getStatusCode(), e.getResponseBodyAsString());
-            throw new BadRequestException("Impossible de générer le quiz. Erreur de communication avec l'IA.");
         } catch (BadRequestException e) {
-            throw e;
+            log.error("Erreur API IA : {}", e.getMessage());
+            throw new BadRequestException("Impossible de générer le quiz. Erreur de communication avec l'IA.");
         } catch (Exception e) {
             log.error("Erreur inattendue lors de l'appel IA : {}", e.getMessage());
             throw new BadRequestException("Impossible de générer le quiz. Erreur de communication avec l'IA.");
@@ -540,7 +529,7 @@ public class QuizServiceImpl implements IQuizService {
             throw new BadRequestException("Impossible de générer le quiz. Erreur de communication avec l'IA.");
         }
 
-        // Strip <think>...</think> blocks produced by DeepSeek reasoning models
+        // Strip <think>...</think> blocks produced by Grok reasoning models
         String cleaned = rawResponse.replaceAll("(?s)<think>.*?</think>", "").trim();
 
         // Extract the JSON object

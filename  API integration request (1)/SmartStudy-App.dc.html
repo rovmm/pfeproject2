@@ -1,0 +1,480 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="">
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;500;600;700;800&amp;family=Inter:wght@400;500;600;700&amp;display=swap" rel="stylesheet">
+<style>
+  * { box-sizing:border-box; }
+  body { margin:0; background:#f4eddd; font-family:'Inter',system-ui,sans-serif; }
+  a { color:#1e3a8a; text-decoration:none; }
+  a:hover { color:#2c53ab; }
+  ::-webkit-scrollbar { width:9px; height:9px; }
+  ::-webkit-scrollbar-thumb { background:#d8cfba; border-radius:6px; }
+  ::-webkit-scrollbar-track { background:transparent; }
+  [data-pills]::-webkit-scrollbar { height:0; }
+  @keyframes ss-pop { from{ opacity:0; transform:translateY(8px) scale(0.98); } to{ opacity:1; transform:none; } }
+  @keyframes ss-spin { to{ transform:rotate(360deg); } }
+</style>
+</helmet>
+
+<div style="display:flex; height:100vh; min-height:720px; width:100%; background:#f4eddd; color:#141427; overflow:hidden;">
+
+  <!-- ================= SIDEBAR ================= -->
+  <aside style="width:262px; flex:none; background:#fffdf8; border-right:1px solid #ece2cf; display:flex; flex-direction:column; padding:22px 16px 16px;">
+    <div style="display:flex; align-items:center; justify-content:space-between; padding:2px 6px 26px;">
+      <div style="display:flex; align-items:center; gap:11px;">
+        <svg width="32" height="32" viewBox="0 0 120 120" fill="none" style="flex:none;">
+          <rect x="2" y="2" width="116" height="116" rx="30" fill="#1e3a8a"></rect>
+          <path d="M28 44 L18 60 L28 76" stroke="#fff" stroke-width="7" stroke-linecap="round" stroke-linejoin="round" opacity="0.5"></path>
+          <path d="M92 44 L102 60 L92 76" stroke="#fff" stroke-width="7" stroke-linecap="round" stroke-linejoin="round" opacity="0.5"></path>
+          <path d="M78 46 C78 37 67 34 57 34 C45 34 39 40 39 49 C39 65 82 57 82 74 C82 83 70 86 58 86 C48 86 41 83 37 77" stroke="#fff" stroke-width="10.5" stroke-linecap="round" stroke-linejoin="round"></path>
+          <circle cx="88" cy="34" r="6.5" fill="#89c540"></circle>
+        </svg>
+        <span style="font-family:'Sora'; font-weight:800; font-size:19px; letter-spacing:-0.02em; color:#141427;">SmartStudy</span>
+      </div>
+      <button style="width:26px; height:26px; border:none; background:none; cursor:pointer; padding:0;" style-hover="opacity:0.7">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#a89e86" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 6l-6 6 6 6"></path></svg>
+      </button>
+    </div>
+
+    <div style="font-family:'Inter'; font-weight:700; font-size:10.5px; letter-spacing:0.18em; color:#b0a68d; padding:0 10px 12px;">PROFESSOR</div>
+
+    <nav style="display:flex; flex-direction:column; gap:3px;">
+      <button onClick="{{ goDash }}" style="{{ navDash }}" style-hover="background:#f4eddd">
+        <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" style="flex:none;"><rect x="3" y="3" width="7" height="7" rx="1.6"></rect><rect x="14" y="3" width="7" height="7" rx="1.6"></rect><rect x="3" y="14" width="7" height="7" rx="1.6"></rect><rect x="14" y="14" width="7" height="7" rx="1.6"></rect></svg>
+        <span>Dashboard</span>
+      </button>
+      <button onClick="{{ goSessions }}" style="{{ navSessions }}" style-hover="background:#f4eddd">
+        <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" style="flex:none;"><rect x="3" y="4" width="18" height="16" rx="2.5"></rect><path d="M10 9l4 3-4 3z" fill="currentColor" stroke="none"></path></svg>
+        <span>My Sessions</span>
+      </button>
+      <button onClick="{{ goDrive }}" style="{{ navDrive }}" style-hover="background:#f4eddd">
+        <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" style="flex:none;"><path d="M3 8a2 2 0 012-2h4l2 2.5h8a2 2 0 012 2V18a2 2 0 01-2 2H5a2 2 0 01-2-2V8z"></path></svg>
+        <span>CodrDrive</span>
+      </button>
+      <button onClick="{{ goSolve }}" style="{{ navSolve }}" style-hover="background:#f4eddd">
+        <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" style="flex:none;"><path d="M4 8V6.5A2.5 2.5 0 016.5 4H8"></path><path d="M16 4h1.5A2.5 2.5 0 0120 6.5V8"></path><path d="M20 16v1.5a2.5 2.5 0 01-2.5 2.5H16"></path><path d="M8 20H6.5A2.5 2.5 0 014 17.5V16"></path><path d="M12 9l.8 2.2L15 12l-2.2.8L12 15l-.8-2.2L9 12l2.2-.8z"></path></svg>
+        <span>Solve</span>
+      </button>
+    </nav>
+
+    <div style="margin-top:auto; border-top:1px solid #ece2cf; padding-top:14px; display:flex; align-items:center; gap:11px;">
+      <div style="width:38px; height:38px; flex:none; border-radius:50%; background:linear-gradient(135deg,#1e3a8a,#2c53ab); display:flex; align-items:center; justify-content:center; font-family:'Sora'; font-weight:700; font-size:15px; color:#fff;">H</div>
+      <div style="min-width:0;">
+        <div style="font-family:'Sora'; font-weight:700; font-size:14px; color:#141427;">{{ userName }}</div>
+        <div style="font-family:'Inter'; font-size:12px; color:#a89e86;">Professor</div>
+      </div>
+    </div>
+  </aside>
+
+  <!-- ================= MAIN COLUMN ================= -->
+  <div style="flex:1; min-width:0; display:flex; flex-direction:column;">
+
+    <!-- TOPBAR -->
+    <header style="height:66px; flex:none; background:#fffdf8; border-bottom:1px solid #ece2cf; display:flex; align-items:center; justify-content:space-between; padding:0 26px;">
+      <div style="display:flex; align-items:center; gap:10px; font-family:'Inter'; font-size:14px;">
+        <span style="color:#a89e86;">Professor</span>
+        <span style="color:#d3c8b0;">/</span>
+        <sc-if value="{{ isDrive }}" hint-placeholder-val="{{ true }}"><span style="font-weight:600; color:#141427;">CodrDrive</span></sc-if>
+        <sc-if value="{{ isSolve }}" hint-placeholder-val=""><span style="font-weight:600; color:#141427;">Solve</span></sc-if>
+      </div>
+      <div style="display:flex; align-items:center; gap:14px;">
+        <button style="width:40px; height:40px; border-radius:12px; border:1px solid #ece2cf; background:#fff; cursor:pointer; display:flex; align-items:center; justify-content:center; position:relative;" style-hover="background:#f4eddd">
+          <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="#5a5344" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8a6 6 0 00-12 0c0 7-3 9-3 9h18s-3-2-3-9"></path><path d="M13.7 21a2 2 0 01-3.4 0"></path></svg>
+          <span style="position:absolute; top:9px; right:10px; width:7px; height:7px; border-radius:50%; background:#89c540; border:1.5px solid #fff;"></span>
+        </button>
+        <div style="display:flex; align-items:center; gap:9px; padding:5px 12px 5px 6px; border:1px solid #ece2cf; border-radius:999px; background:#fff; cursor:pointer;" style-hover="background:#f4eddd">
+          <div style="width:30px; height:30px; border-radius:50%; background:linear-gradient(135deg,#1e3a8a,#2c53ab); display:flex; align-items:center; justify-content:center; font-family:'Sora'; font-weight:700; font-size:13px; color:#fff;">H</div>
+          <span style="font-family:'Inter'; font-weight:600; font-size:14px; color:#141427;">{{ userName }}</span>
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#a89e86" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"></path></svg>
+        </div>
+      </div>
+    </header>
+
+    <!-- ============ CODRDRIVE SCREEN ============ -->
+    <sc-if value="{{ isDrive }}" hint-placeholder-val="{{ true }}">
+    <div style="flex:1; min-height:0; display:flex;">
+
+      <!-- folder tree -->
+      <div style="width:284px; flex:none; background:#fffdf8; border-right:1px solid #ece2cf; padding:22px 18px; overflow-y:auto;">
+        <div style="font-family:'Sora'; font-weight:700; font-size:15px; color:#141427; margin-bottom:16px;">My CodrDrive</div>
+        <button style="width:100%; display:flex; align-items:center; justify-content:center; gap:9px; padding:12px; border:1.5px dashed #c3b79b; border-radius:12px; background:#fff; cursor:pointer; font-family:'Sora'; font-weight:600; font-size:13.5px; color:#5a5344; margin-bottom:18px;" style-hover="border-color:#1e3a8a; color:#1e3a8a">
+          <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 8a2 2 0 012-2h4l2 2.5h8a2 2 0 012 2V18a2 2 0 01-2 2H5a2 2 0 01-2-2V8z"></path><path d="M12 11v5"></path><path d="M9.5 13.5h5"></path></svg>
+          New Folder
+        </button>
+
+        <div style="display:flex; flex-direction:column; gap:2px;">
+          <div style="display:flex; align-items:center; gap:9px; padding:9px 11px; border-radius:10px; font-family:'Inter'; font-size:13.5px; color:#5a5344; cursor:pointer;" style-hover="background:#f4eddd">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#d29a3a" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 8a2 2 0 012-2h4l2 2.5h8a2 2 0 012 2V18a2 2 0 01-2 2H5a2 2 0 01-2-2V8z"></path></svg>
+            test
+          </div>
+          <div style="display:flex; align-items:center; gap:9px; padding:9px 11px; border-radius:10px; font-family:'Inter'; font-weight:600; font-size:13.5px; color:#1e3a8a; background:#eaf0fb; cursor:pointer;">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#1e3a8a" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"></path></svg>
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#1e3a8a" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 8a2 2 0 012-2h4l2 2.5h8a2 2 0 012 2V18a2 2 0 01-2 2H5a2 2 0 01-2-2V8z"></path></svg>
+            exams
+          </div>
+          <div style="display:flex; align-items:center; gap:9px; padding:9px 11px 9px 34px; border-radius:10px; font-family:'Inter'; font-size:13.5px; color:#5a5344; cursor:pointer;" style-hover="background:#f4eddd">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#d29a3a" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 8a2 2 0 012-2h4l2 2.5h8a2 2 0 012 2V18a2 2 0 01-2 2H5a2 2 0 01-2-2V8z"></path></svg>
+            test
+          </div>
+        </div>
+
+        <div style="height:1px; background:#ece2cf; margin:16px 0;"></div>
+        <div style="display:flex; flex-direction:column; gap:2px;">
+          <div style="display:flex; align-items:center; gap:9px; padding:9px 11px; border-radius:10px; font-family:'Inter'; font-size:13.5px; color:#5a5344; cursor:pointer;" style-hover="background:#f4eddd">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#a89e86" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l2.9 6.3 6.6.6-5 4.4 1.5 6.5L12 17l-5.8 3.6 1.5-6.5-5-4.4 6.6-.6z"></path></svg>
+            Favorites
+          </div>
+          <div style="display:flex; align-items:center; gap:9px; padding:9px 11px; border-radius:10px; font-family:'Inter'; font-size:13.5px; color:#5a5344; cursor:pointer;" style-hover="background:#f4eddd">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#a89e86" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"></circle><path d="M21 21l-4.3-4.3"></path></svg>
+            Search
+          </div>
+        </div>
+      </div>
+
+      <!-- files main area -->
+      <div style="flex:1; min-width:0; overflow-y:auto; padding:26px 30px; background:#f4eddd;">
+        <div style="display:flex; align-items:center; gap:9px; font-family:'Inter'; font-size:13px; margin-bottom:14px;">
+          <span style="color:#a89e86;">My CodrDrive</span><span style="color:#d3c8b0;">/</span><span style="font-weight:600; color:#5a5344;">exams</span>
+        </div>
+
+        <div style="display:flex; align-items:center; justify-content:space-between; gap:16px; margin-bottom:26px; flex-wrap:wrap;">
+          <h1 style="font-family:'Sora'; font-weight:800; font-size:25px; letter-spacing:-0.02em; margin:0; color:#141427;">exams</h1>
+          <div style="display:flex; align-items:center; gap:12px;">
+            <div style="display:flex; align-items:center; gap:8px; padding:0 14px; height:42px; background:#fff; border:1px solid #ece2cf; border-radius:11px;">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#a89e86" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"></circle><path d="M21 21l-4.3-4.3"></path></svg>
+              <input placeholder="Filter..." style="border:none; outline:none; background:none; font-family:'Inter'; font-size:14px; color:#141427; width:110px;">
+            </div>
+            <div style="display:flex; background:#fff; border:1px solid #ece2cf; border-radius:11px; overflow:hidden;">
+              <button onClick="{{ setGrid }}" style="{{ gridBtn }}"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7" rx="1.5"></rect><rect x="14" y="3" width="7" height="7" rx="1.5"></rect><rect x="3" y="14" width="7" height="7" rx="1.5"></rect><rect x="14" y="14" width="7" height="7" rx="1.5"></rect></svg></button>
+              <button onClick="{{ setList }}" style="{{ listBtn }}"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M8 6h13"></path><path d="M8 12h13"></path><path d="M8 18h13"></path><path d="M3 6h.01"></path><path d="M3 12h.01"></path><path d="M3 18h.01"></path></svg></button>
+            </div>
+            <button style="display:flex; align-items:center; gap:8px; height:42px; padding:0 18px; border:none; border-radius:11px; background:#1e3a8a; color:#fff; cursor:pointer; font-family:'Sora'; font-weight:700; font-size:14px; box-shadow:0 10px 22px -12px rgba(30,58,138,0.6);" style-hover="background:#2c53ab">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 19V6"></path><path d="M5 12l7-7 7 7"></path></svg>
+              Upload
+            </button>
+            <button style="display:flex; align-items:center; gap:8px; height:42px; padding:0 16px; border:1.5px solid #1e3a8a; border-radius:11px; background:#fff; color:#1e3a8a; cursor:pointer; font-family:'Sora'; font-weight:600; font-size:14px;" style-hover="background:#eaf0fb">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#1e3a8a" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M3 8a2 2 0 012-2h4l2 2.5h8a2 2 0 012 2V18a2 2 0 01-2 2H5a2 2 0 01-2-2V8z"></path><path d="M12 11v5"></path><path d="M9.5 13.5h5"></path></svg>
+              New Subfolder
+            </button>
+          </div>
+        </div>
+
+        <div style="font-family:'Inter'; font-weight:700; font-size:11px; letter-spacing:0.16em; color:#b0a68d; margin-bottom:14px;">FOLDERS</div>
+        <div style="display:grid; grid-template-columns:repeat(auto-fill,minmax(230px,1fr)); gap:18px; margin-bottom:32px;">
+          <div style="background:#fff; border:1px solid #ece2cf; border-radius:16px; padding:20px; cursor:pointer; transition:transform .15s ease, box-shadow .15s ease;" style-hover="transform:translateY(-3px); box-shadow:0 22px 40px -26px rgba(20,20,39,0.4)">
+            <div style="display:flex; align-items:flex-start; justify-content:space-between;">
+              <div style="width:46px; height:46px; border-radius:13px; background:#fef2dd; display:flex; align-items:center; justify-content:center;">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#d29a3a" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 8a2 2 0 012-2h4l2 2.5h8a2 2 0 012 2V18a2 2 0 01-2 2H5a2 2 0 01-2-2V8z"></path></svg>
+              </div>
+              <div style="display:flex; gap:4px;">
+                <button style="width:28px; height:28px; border:none; background:none; border-radius:8px; cursor:pointer; display:flex; align-items:center; justify-content:center;" style-hover="background:#f4eddd"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#c1b79e" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l2.9 6.3 6.6.6-5 4.4 1.5 6.5L12 17l-5.8 3.6 1.5-6.5-5-4.4 6.6-.6z"></path></svg></button>
+                <button style="width:28px; height:28px; border:none; background:none; border-radius:8px; cursor:pointer; display:flex; align-items:center; justify-content:center;" style-hover="background:#f4eddd"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#c1b79e" stroke-width="2.2" stroke-linecap="round"><circle cx="12" cy="5" r="1"></circle><circle cx="12" cy="12" r="1"></circle><circle cx="12" cy="19" r="1"></circle></svg></button>
+              </div>
+            </div>
+            <div style="font-family:'Sora'; font-weight:700; font-size:15px; margin:16px 0 3px; color:#141427;">test</div>
+            <div style="font-family:'Inter'; font-size:12.5px; color:#a89e86; margin-bottom:12px;">0 items</div>
+            <span style="display:inline-block; font-family:'Inter'; font-weight:600; font-size:11.5px; color:#5a7a2a; background:#eef6e0; padding:5px 11px; border-radius:999px;">Visible to Students</span>
+          </div>
+        </div>
+
+        <div style="font-family:'Inter'; font-weight:700; font-size:11px; letter-spacing:0.16em; color:#b0a68d; margin-bottom:14px;">FILES</div>
+        <div style="display:grid; grid-template-columns:repeat(auto-fill,minmax(230px,1fr)); gap:18px;">
+          <div onClick="{{ selectFile }}" style="{{ fileCardStyle }}" style-hover="transform:translateY(-3px)">
+            <div style="display:flex; align-items:flex-start; justify-content:space-between;">
+              <div style="width:46px; height:46px; border-radius:13px; background:#fdeceb; display:flex; align-items:center; justify-content:center;">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#d9534f" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"></path><path d="M14 2v6h6"></path></svg>
+              </div>
+              <div style="display:flex; gap:4px;">
+                <button style="width:28px; height:28px; border:none; background:none; border-radius:8px; cursor:pointer; display:flex; align-items:center; justify-content:center;" style-hover="background:#f4eddd"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#c1b79e" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l2.9 6.3 6.6.6-5 4.4 1.5 6.5L12 17l-5.8 3.6 1.5-6.5-5-4.4 6.6-.6z"></path></svg></button>
+                <button style="width:28px; height:28px; border:none; background:none; border-radius:8px; cursor:pointer; display:flex; align-items:center; justify-content:center;" style-hover="background:#f4eddd"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#c1b79e" stroke-width="2.2" stroke-linecap="round"><circle cx="12" cy="5" r="1"></circle><circle cx="12" cy="12" r="1"></circle><circle cx="12" cy="19" r="1"></circle></svg></button>
+              </div>
+            </div>
+            <div style="font-family:'Sora'; font-weight:700; font-size:14px; margin:16px 0 3px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; color:#141427;">{{ fileName }}</div>
+            <div style="font-family:'Inter'; font-size:12.5px; color:#a89e86; margin-bottom:12px;">125.1 KB</div>
+            <span style="display:inline-block; font-family:'Inter'; font-weight:600; font-size:11.5px; color:#5a7a2a; background:#eef6e0; padding:5px 11px; border-radius:999px;">Visible to Students</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- detail panel -->
+      <sc-if value="{{ detailPanel }}" hint-placeholder-val="{{ true }}">
+      <div style="width:388px; flex:none; background:#fffdf8; border-left:1px solid #ece2cf; overflow-y:auto; padding:22px 24px 30px; animation:ss-pop .28s ease;">
+        <div style="display:flex; justify-content:flex-end; margin-bottom:6px;">
+          <button onClick="{{ closeDetail }}" style="width:32px; height:32px; border:none; background:none; border-radius:9px; cursor:pointer; display:flex; align-items:center; justify-content:center;" style-hover="background:#f4eddd">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#a89e86" stroke-width="2" stroke-linecap="round"><path d="M6 6l12 12"></path><path d="M18 6L6 18"></path></svg>
+          </button>
+        </div>
+
+        <div style="text-align:center; margin-bottom:18px;">
+          <div style="width:76px; height:76px; border-radius:18px; background:#fdeceb; display:flex; align-items:center; justify-content:center; margin:0 auto 16px;">
+            <svg width="38" height="38" viewBox="0 0 24 24" fill="none" stroke="#d9534f" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"></path><path d="M14 2v6h6"></path></svg>
+          </div>
+          <div style="font-family:'Sora'; font-weight:700; font-size:15.5px; line-height:1.35; word-break:break-word; color:#141427;">{{ fileName }}</div>
+          <div style="display:flex; align-items:center; justify-content:center; gap:7px; flex-wrap:wrap; margin-top:12px;">
+            <span style="font-family:'Inter'; font-weight:600; font-size:11.5px; color:#5a5344; background:#f1ead9; padding:5px 11px; border-radius:999px;">125.1 KB</span>
+            <span style="font-family:'Inter'; font-weight:600; font-size:11.5px; color:#5a5344; background:#f1ead9; padding:5px 11px; border-radius:999px;">PDF</span>
+            <span style="font-family:'Inter'; font-weight:600; font-size:11.5px; color:#5a5344; background:#f1ead9; padding:5px 11px; border-radius:999px;">Jul 7, 2026</span>
+          </div>
+        </div>
+
+        <div style="display:flex; flex-direction:column; gap:10px; margin-bottom:24px;">
+          <button style="width:100%; display:flex; align-items:center; justify-content:center; gap:9px; height:46px; border:none; border-radius:12px; background:#1e3a8a; color:#fff; cursor:pointer; font-family:'Sora'; font-weight:600; font-size:14.5px; box-shadow:0 12px 24px -14px rgba(30,58,138,0.7);" style-hover="background:#2c53ab">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1.5 12S5 5 12 5s10.5 7 10.5 7-3.5 7-10.5 7S1.5 12 1.5 12z"></path><circle cx="12" cy="12" r="3"></circle></svg>
+            Preview
+          </button>
+          <button style="width:100%; display:flex; align-items:center; justify-content:center; gap:9px; height:46px; border:1.5px solid #d3c8b0; border-radius:12px; background:#fff; color:#5a5344; cursor:pointer; font-family:'Sora'; font-weight:600; font-size:14.5px;" style-hover="border-color:#1e3a8a; color:#1e3a8a">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M12 4v12"></path><path d="M7 11l5 5 5-5"></path><path d="M5 20h14"></path></svg>
+            Download
+          </button>
+        </div>
+
+        <div style="font-family:'Sora'; font-weight:700; font-size:14px; margin-bottom:14px; color:#141427;">Settings</div>
+        <div style="font-family:'Inter'; font-weight:600; font-size:12.5px; color:#8a8271; margin-bottom:8px;">Visibility</div>
+        <div style="position:relative; margin-bottom:18px;">
+          <select style="width:100%; appearance:none; height:46px; padding:0 40px 0 14px; border:1px solid #ece2cf; border-radius:12px; background:#fff; font-family:'Inter'; font-size:14px; color:#141427; cursor:pointer;">
+            <option>Visible to Students</option>
+            <option>Hidden from Students</option>
+            <option>Professors only</option>
+          </select>
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#a89e86" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="position:absolute; right:14px; top:15px; pointer-events:none;"><path d="M6 9l6 6 6-6"></path></svg>
+        </div>
+
+        <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:20px;">
+          <span style="font-family:'Inter'; font-weight:600; font-size:14px; color:#141427;">Allow Download</span>
+          <button onClick="{{ toggleDownload }}" style="width:46px; height:26px; border:none; border-radius:999px; cursor:pointer; position:relative; transition:background .2s ease; background:{{ trackBg }};">
+            <span style="position:absolute; top:2px; left:2px; width:22px; height:22px; border-radius:50%; background:#fff; box-shadow:0 2px 5px rgba(0,0,0,0.25); transition:transform .2s ease; transform:{{ knobTransform }};"></span>
+          </button>
+        </div>
+
+        <button style="width:100%; height:46px; border:none; border-radius:12px; background:#1e3a8a; color:#fff; cursor:pointer; font-family:'Sora'; font-weight:600; font-size:14.5px; margin-bottom:26px; box-shadow:0 12px 24px -14px rgba(30,58,138,0.7);" style-hover="background:#2c53ab">Save</button>
+
+        <div style="display:flex; align-items:center; gap:8px; margin-bottom:14px;">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#89c540" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l1.9 5.1L19 10l-5.1 1.9L12 17l-1.9-5.1L5 10l5.1-1.9z"></path></svg>
+          <span style="font-family:'Sora'; font-weight:700; font-size:14px; color:#141427;">AI Actions</span>
+        </div>
+        <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-bottom:14px;">
+          <sc-for list="{{ aiActions }}" as="a" hint-placeholder-count="6">
+            <button onClick="{{ a.onClick }}" style="height:44px; border:1.5px solid #d9e2f4; border-radius:11px; background:#fff; color:#1e3a8a; cursor:pointer; font-family:'Sora'; font-weight:600; font-size:12.5px;" style-hover="background:#eaf0fb; border-color:#1e3a8a">{{ a.label }}</button>
+          </sc-for>
+        </div>
+
+        <sc-if value="{{ aiBusy }}" hint-placeholder-val="">
+          <div style="display:flex; align-items:center; gap:10px; padding:13px 15px; background:#eaf0fb; border-radius:12px; margin-bottom:20px; font-family:'Inter'; font-size:13.5px; color:#1e3a8a;">
+            <span style="width:16px; height:16px; border:2px solid #b9caea; border-top-color:#1e3a8a; border-radius:50%; animation:ss-spin .7s linear infinite; display:inline-block;"></span>
+            {{ aiBusyMsg }}
+          </div>
+        </sc-if>
+        <sc-if value="{{ aiResult }}" hint-placeholder-val="">
+          <div style="padding:14px 16px; background:#eef6e0; border:1px solid #d8ebbb; border-radius:12px; margin-bottom:20px;">
+            <div style="display:flex; align-items:center; gap:8px; margin-bottom:6px;">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#5a7a2a" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"></path></svg>
+              <span style="font-family:'Sora'; font-weight:700; font-size:13px; color:#5a7a2a;">{{ aiResult }}</span>
+            </div>
+            <div style="font-family:'Inter'; font-size:12.5px; line-height:1.55; color:#5a7a2a;">{{ aiResultMsg }}</div>
+          </div>
+        </sc-if>
+
+        <div style="font-family:'Sora'; font-weight:700; font-size:14px; margin-bottom:10px; color:#141427;">Ask AI</div>
+        <textarea value="{{ askInput }}" onInput="{{ onAsk }}" placeholder="Ask a question about this file..." style="width:100%; min-height:84px; resize:none; padding:13px 15px; border:1px solid #ece2cf; border-radius:12px; background:#fff; font-family:'Inter'; font-size:14px; color:#141427; outline:none; margin-bottom:10px;"></textarea>
+        <button onClick="{{ ask }}" style="width:100%; height:46px; border:1px solid #2b2b38; border-radius:12px; background:#141427; color:#fff; cursor:pointer; font-family:'Sora'; font-weight:600; font-size:14.5px; margin-bottom:26px;" style-hover="background:#2a2a45">Ask</button>
+
+        <button style="width:100%; display:flex; align-items:center; justify-content:center; gap:9px; height:46px; border:1.5px solid #f0c8c6; border-radius:12px; background:#fff; color:#d9534f; cursor:pointer; font-family:'Sora'; font-weight:600; font-size:14px;" style-hover="background:#fdeceb">
+          <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18"></path><path d="M8 6V4h8v2"></path><path d="M6 6l1 14h10l1-14"></path></svg>
+          Delete this file
+        </button>
+      </div>
+      </sc-if>
+    </div>
+    </sc-if>
+
+    <!-- ============ SOLVE SCREEN ============ -->
+    <sc-if value="{{ isSolve }}" hint-placeholder-val="">
+    <div style="flex:1; min-height:0; display:flex; flex-direction:column; background:#f4eddd;">
+
+      <!-- slim toolbar -->
+      <div style="flex:none; height:56px; display:flex; align-items:center; justify-content:space-between; padding:0 22px; border-bottom:1px solid #ece2cf;">
+        <button onClick="{{ newChat }}" style="width:38px; height:38px; border:none; background:none; border-radius:10px; cursor:pointer; display:flex; align-items:center; justify-content:center;" style-hover="background:#eae1cd">
+          <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="#5a5344" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"></path><path d="M16.5 3.5a2.1 2.1 0 013 3L7 19l-4 1 1-4z"></path></svg>
+        </button>
+        <button style="width:38px; height:38px; border:none; background:none; border-radius:10px; cursor:pointer; display:flex; align-items:center; justify-content:center;" style-hover="background:#eae1cd">
+          <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="#5a5344" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3v5h5"></path><path d="M3.05 13A9 9 0 106 5.3L3 8"></path><path d="M12 7v5l4 2"></path></svg>
+        </button>
+      </div>
+
+      <!-- centered composer -->
+      <div style="flex:1; min-height:0; overflow-y:auto; display:flex; align-items:center; justify-content:center; padding:40px 24px;">
+        <div style="width:100%; max-width:720px;">
+          <div style="text-align:center; margin-bottom:30px;">
+            <div style="width:56px; height:56px; border-radius:16px; background:linear-gradient(135deg,#1e3a8a,#2c53ab); display:flex; align-items:center; justify-content:center; margin:0 auto 20px; box-shadow:0 16px 34px -16px rgba(30,58,138,0.6);">
+              <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l1.9 5.1L19 10l-5.1 1.9L12 17l-1.9-5.1L5 10l5.1-1.9z"></path><path d="M19 14l.9 2.4L22 17l-2.1.6L19 20l-.9-2.4L16 17l2.1-.6z"></path></svg>
+            </div>
+            <h1 style="font-family:'Sora'; font-weight:800; font-size:32px; letter-spacing:-0.02em; margin:0 0 8px; color:#141427;">What do you want to solve?</h1>
+            <p style="font-family:'Inter'; font-size:15px; color:#8a8271; margin:0;">Specialized in programming and computer science</p>
+          </div>
+
+          <!-- category pills -->
+          <div style="display:flex; align-items:center; gap:10px; margin-bottom:20px;">
+            <button onClick="{{ scrollLeft }}" style="width:34px; height:34px; flex:none; border:1px solid #ece2cf; background:#fff; border-radius:10px; cursor:pointer; display:flex; align-items:center; justify-content:center;" style-hover="background:#f4eddd">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#8a8271" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 6l-6 6 6 6"></path></svg>
+            </button>
+            <div data-pills="" style="flex:1; display:flex; gap:9px; overflow-x:auto; scroll-behavior:smooth;">
+              <sc-for list="{{ pills }}" as="p" hint-placeholder-count="7">
+                <button onClick="{{ p.onClick }}" style="{{ p.style }}">{{ p.label }}</button>
+              </sc-for>
+            </div>
+            <button onClick="{{ scrollRight }}" style="width:34px; height:34px; flex:none; border:1px solid #ece2cf; background:#fff; border-radius:10px; cursor:pointer; display:flex; align-items:center; justify-content:center;" style-hover="background:#f4eddd">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#8a8271" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 6l6 6-6 6"></path></svg>
+            </button>
+          </div>
+
+          <!-- drag & drop -->
+          <div style="border:1.5px dashed #cdbf9f; border-radius:16px 16px 0 0; border-bottom:none; padding:26px; text-align:center; cursor:pointer; background:#fbf6ea;" style-hover="border-color:#1e3a8a; background:#f6f0e2">
+            <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#a89e86" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" style="margin-bottom:8px;"><rect x="3" y="3" width="18" height="18" rx="2.5"></rect><circle cx="9" cy="9" r="1.6"></circle><path d="M21 15l-5-5L5 21"></path></svg>
+            <div style="font-family:'Inter'; font-size:14px; color:#8a8271;">Drag &amp; drop or click to add a file</div>
+          </div>
+
+          <!-- input box -->
+          <div style="border:1px solid #ece2cf; border-radius:0 0 16px 16px; background:#fff; padding:16px 18px;">
+            <textarea value="{{ chatInput }}" onInput="{{ onChat }}" placeholder="Type your question here..." style="width:100%; border:none; outline:none; resize:none; background:none; font-family:'Inter'; font-size:15px; color:#141427; min-height:48px; max-height:160px; line-height:1.5;"></textarea>
+            <div style="display:flex; align-items:center; justify-content:space-between; margin-top:8px;">
+              <button onClick="{{ toggleThinking }}" style="display:flex; align-items:center; gap:10px; border:none; background:none; cursor:pointer; padding:0;">
+                <span style="width:40px; height:23px; border-radius:999px; position:relative; transition:background .2s ease; background:{{ thinkTrack }};">
+                  <span style="position:absolute; top:2px; left:2px; width:19px; height:19px; border-radius:50%; background:#fff; box-shadow:0 1px 3px rgba(0,0,0,0.25); transition:transform .2s ease; transform:{{ thinkKnob }};"></span>
+                </span>
+                <span style="font-family:'Inter'; font-weight:500; font-size:13.5px; color:#8a8271;">Thinking</span>
+              </button>
+              <button onClick="{{ send }}" style="width:44px; height:44px; border:none; border-radius:50%; background:#1e3a8a; cursor:pointer; display:flex; align-items:center; justify-content:center; box-shadow:0 10px 22px -12px rgba(30,58,138,0.7);" style-hover="background:#2c53ab">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M12 19V6"></path><path d="M6 12l6-6 6 6"></path></svg>
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    </sc-if>
+
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;$preview&quot;:{&quot;width&quot;:&quot;100%&quot;,&quot;height&quot;:760},&quot;startScreen&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[&quot;drive&quot;,&quot;solve&quot;],&quot;default&quot;:&quot;drive&quot;,&quot;tsType&quot;:&quot;string&quot;,&quot;section&quot;:&quot;Content&quot;},&quot;userName&quot;:{&quot;editor&quot;:&quot;text&quot;,&quot;default&quot;:&quot;hicham&quot;,&quot;tsType&quot;:&quot;string&quot;,&quot;section&quot;:&quot;Content&quot;},&quot;fileName&quot;:{&quot;editor&quot;:&quot;text&quot;,&quot;default&quot;:&quot;Rapport_Club_iCode_2025-2026.pdf&quot;,&quot;tsType&quot;:&quot;string&quot;,&quot;section&quot;:&quot;Content&quot;}}">
+class Component extends DCLogic {
+  state = {
+    screen: (this.props && this.props.startScreen) || 'drive',
+    detailOpen: true,
+    view: 'grid',
+    allowDownload: true,
+    aiBusy: null,
+    aiResult: null,
+    chatInput: '',
+    askInput: '',
+    thinking: false,
+    category: 'debug',
+  };
+
+  go(screen) { return () => this.setState({ screen }); }
+  setView(v) { return () => this.setState({ view: v }); }
+  toggleDownload = () => this.setState(s => ({ allowDownload: !s.allowDownload }));
+  toggleThinking = () => this.setState(s => ({ thinking: !s.thinking }));
+  selectFile = () => this.setState({ detailOpen: true });
+  closeDetail = () => this.setState({ detailOpen: false });
+  newChat = () => this.setState({ chatInput: '', category: 'debug' });
+  onChat = (e) => this.setState({ chatInput: e.target.value });
+  onAsk = (e) => this.setState({ askInput: e.target.value });
+  send = () => {};
+  ask = () => {};
+
+  scrollPills(dir) {
+    return () => {
+      const el = (this.dcRoot || document).querySelector('[data-pills]');
+      if (el) el.scrollBy({ left: dir * 220, behavior: 'smooth' });
+    };
+  }
+
+  runAi(label) {
+    return () => {
+      this.setState({ aiBusy: label, aiResult: null });
+      clearTimeout(this._t);
+      this._t = setTimeout(() => this.setState({ aiBusy: null, aiResult: label }), 850);
+    };
+  }
+  pickCat(id, text) {
+    return () => this.setState({ category: id, chatInput: text, screen: 'solve' });
+  }
+
+  renderVals() {
+    const s = this.state;
+    const base = "display:flex; align-items:center; gap:13px; padding:11px 13px; border-radius:11px; font-family:'Inter'; font-weight:500; font-size:14px; color:#5a5344; cursor:pointer; border:none; background:none; width:100%; text-align:left;";
+    const active = "display:flex; align-items:center; gap:13px; padding:11px 13px; border-radius:11px; font-family:'Inter'; font-weight:600; font-size:14px; color:#1e3a8a; cursor:pointer; border:none; width:100%; text-align:left; background:#eaf0fb;";
+    const isDrive = s.screen === 'drive';
+    const isSolve = s.screen === 'solve';
+
+    const tglBase = "flex:1; display:flex; align-items:center; justify-content:center; width:40px; height:40px; border:none; cursor:pointer;";
+    const gridBtn = tglBase + (s.view === 'grid' ? "background:#eaf0fb; color:#1e3a8a;" : "background:#fff; color:#a89e86;");
+    const listBtn = tglBase + (s.view === 'list' ? "background:#eaf0fb; color:#1e3a8a;" : "background:#fff; color:#a89e86;");
+
+    const fileCardStyle = "background:#fff; border:1px solid #1e3a8a; border-radius:16px; padding:20px; cursor:pointer; box-shadow:0 0 0 3px #eaf0fb; transition:transform .15s ease;";
+
+    const aiActions = ['Summarize', 'Explain', 'Key Concepts', 'Generate Quiz', 'Flashcards', 'Generate Exercise']
+      .map(l => ({ label: l, onClick: this.runAi(l) }));
+
+    const cats = [
+      { id: 'debug', label: 'Debug', text: 'Debug my code' },
+      { id: 'explain', label: 'Explain', text: 'Explain this code' },
+      { id: 'optimize', label: 'Optimize', text: 'Optimize my code' },
+      { id: 'generate', label: 'Generate', text: 'Generate code' },
+      { id: 'convert', label: 'Convert', text: 'Convert this code to another language' },
+      { id: 'algo', label: 'Algorithm', text: 'Explain an algorithm' },
+      { id: 'quiz', label: 'Quiz', text: 'Generate a quiz question' },
+    ];
+    const pillBase = "flex:none; padding:9px 18px; border-radius:999px; border:1px solid #e0d6bf; background:#fff; color:#5a5344; cursor:pointer; font-family:'Sora'; font-weight:600; font-size:13.5px; white-space:nowrap;";
+    const pillActive = "flex:none; padding:9px 18px; border-radius:999px; border:1px solid #1e3a8a; background:#eaf0fb; color:#1e3a8a; cursor:pointer; font-family:'Sora'; font-weight:600; font-size:13.5px; white-space:nowrap;";
+    const pills = cats.map(c => ({
+      label: c.label,
+      onClick: this.pickCat(c.id, c.text),
+      style: s.category === c.id ? pillActive : pillBase,
+    }));
+
+    return {
+      isDrive, isSolve,
+      userName: (this.props && this.props.userName) || 'hicham',
+      fileName: (this.props && this.props.fileName) || 'Rapport_Club_iCode_2025-2026.pdf',
+      goDash: this.go('drive'), goSessions: this.go('drive'),
+      goDrive: this.go('drive'), goSolve: this.go('solve'),
+      navDash: base, navSessions: base,
+      navDrive: isDrive ? active : base,
+      navSolve: isSolve ? active : base,
+      setGrid: this.setView('grid'), setList: this.setView('list'),
+      gridBtn, listBtn, fileCardStyle,
+      selectFile: this.selectFile, closeDetail: this.closeDetail,
+      detailPanel: isDrive && s.detailOpen,
+      toggleDownload: this.toggleDownload,
+      trackBg: s.allowDownload ? '#1e3a8a' : '#d8cfbb',
+      knobTransform: s.allowDownload ? 'translateX(20px)' : 'translateX(0)',
+      aiActions,
+      aiBusy: s.aiBusy,
+      aiBusyMsg: s.aiBusy ? ('Generating ' + s.aiBusy.toLowerCase() + '\u2026') : null,
+      aiResult: s.aiResult,
+      aiResultMsg: s.aiResult ? (s.aiResult + ' ready \u2014 generated from this PDF. Open it to review or export.') : null,
+      askInput: s.askInput, onAsk: this.onAsk, ask: this.ask,
+      pills,
+      scrollLeft: this.scrollPills(-1), scrollRight: this.scrollPills(1),
+      newChat: this.newChat,
+      chatInput: s.chatInput, onChat: this.onChat, send: this.send,
+      toggleThinking: this.toggleThinking,
+      thinkTrack: s.thinking ? '#1e3a8a' : '#d8cfbb',
+      thinkKnob: s.thinking ? 'translateX(17px)' : 'translateX(0)',
+    };
+  }
+}
+</script>
+</body>
+</html>

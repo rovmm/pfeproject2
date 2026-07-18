@@ -3,6 +3,7 @@ package com.example.quizplatforme.controller;
 import com.example.quizplatforme.DTO.Request.CreateSessionRequest;
 import com.example.quizplatforme.DTO.Request.DuplicateSessionRequest;
 import com.example.quizplatforme.DTO.Request.SubmitCodeRequest;
+import com.example.quizplatforme.DTO.Response.ParticipantPresenceResponse;
 import com.example.quizplatforme.DTO.Response.SessionResponse;
 import com.example.quizplatforme.DTO.Response.StudentSubmissionResponse;
 import com.example.quizplatforme.Service.ISessionService;
@@ -112,6 +113,36 @@ public class SessionController {
     }
 
     /**
+     * POST /api/sessions/{id}/heartbeat — STUDENT only
+     *
+     * <p>Signale que l'étudiant est toujours actif sur la session live. Appelé
+     * périodiquement par le client pendant qu'il a la page ouverte.
+     */
+    @PostMapping("/{id}/heartbeat")
+    public ResponseEntity<Void> heartbeat(
+            @PathVariable Long id,
+            @AuthenticationPrincipal UserDetails userDetails) {
+
+        sessionService.heartbeat(id, userDetails.getUsername());
+        return ResponseEntity.noContent().build();
+    }
+
+    /**
+     * GET /api/sessions/{id}/presence — PROF only
+     *
+     * <p>Retourne, pour chaque étudiant ayant rejoint la session, son statut de
+     * présence (en ligne / parti) déduit de son dernier heartbeat.
+     */
+    @GetMapping("/{id}/presence")
+    public ResponseEntity<List<ParticipantPresenceResponse>> getPresence(
+            @PathVariable Long id,
+            @AuthenticationPrincipal UserDetails userDetails) {
+
+        return ResponseEntity.ok(
+                sessionService.getPresence(id, userDetails.getUsername()));
+    }
+
+    /**
      * POST /api/sessions/{id}/duplicate — PROF only
      */
     @PostMapping("/{id}/duplicate")
@@ -124,5 +155,17 @@ public class SessionController {
         return ResponseEntity
                 .status(HttpStatus.CREATED)
                 .body(sessionService.duplicateSession(id, req, userDetails.getUsername()));
+    }
+
+    /**
+     * DELETE /api/sessions/{id} — PROF only (ownership checked in service)
+     */
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> deleteSession(
+            @PathVariable Long id,
+            @AuthenticationPrincipal UserDetails userDetails) {
+
+        sessionService.deleteSession(id, userDetails.getUsername());
+        return ResponseEntity.noContent().build();
     }
 }

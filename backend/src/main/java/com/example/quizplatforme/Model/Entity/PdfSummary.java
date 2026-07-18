@@ -7,7 +7,7 @@ import org.hibernate.annotations.CreationTimestamp;
 import java.time.LocalDateTime;
 
 /**
- * Résumé PDF généré par l'IA Groq pour un utilisateur.
+ * Résumé PDF généré par l'IA Grok pour un utilisateur.
  *
  * <p>Mappe la table {@code pdf_summaries} (créée dans V5, colonne {@code original_text}
  * ajoutée dans V6). Chaque ligne correspond à un appel réussi à
@@ -16,7 +16,7 @@ import java.time.LocalDateTime;
  * <h3>Champs stockés</h3>
  * <ul>
  *   <li>{@code originalText} — texte brut extrait du PDF, plafonné à 60 000 caractères</li>
- *   <li>{@code summary}      — résumé généré par Groq</li>
+ *   <li>{@code summary}      — résumé généré par Grok</li>
  *   <li>{@code pageCount}    — nombre de pages du fichier source</li>
  * </ul>
  *
@@ -59,7 +59,7 @@ public class PdfSummary {
     @Column(name = "original_text", columnDefinition = "TEXT")
     private String originalText;
 
-    /** Résumé généré par l'IA Groq (jamais null après un résumé réussi). */
+    /** Résumé généré par l'IA Grok (jamais null après un résumé réussi). */
     @Column(columnDefinition = "TEXT", nullable = false)
     private String summary;
 

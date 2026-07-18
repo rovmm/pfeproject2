@@ -1,5 +1,6 @@
 package com.example.quizplatforme.Service;
 
+import com.example.quizplatforme.DTO.Request.CreateQuestionRequest;
 import com.example.quizplatforme.DTO.Request.CreateQuizRequest;
 import com.example.quizplatforme.DTO.Request.SubmitQuizAnswersRequest;
 import com.example.quizplatforme.DTO.Response.LeaderboardResponse;
@@ -16,6 +17,14 @@ public interface IQuizService {
     QuizResponse generateQuizFromPdf(Long sessionId, MultipartFile file,
                                      int numberOfQuestions, String title,
                                      String description, String profEmail);
+
+    /**
+     * Extracts text from the PDF and asks the AI to generate questions,
+     * without persisting anything — lets the professor review/edit before
+     * saving via {@link #createQuiz}.
+     */
+    List<CreateQuestionRequest> generateQuizQuestionsPreview(Long sessionId, MultipartFile file,
+                                                              int numberOfQuestions, String profEmail);
 
     QuizResponse getQuizForStudent(Long sessionId, String studentEmail);
 

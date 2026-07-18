@@ -14,5 +14,5 @@ public class AiAnalysisResponse {
     private String language;
     private String code;
     private String error;
-    private String analysis;  // réponse DeepSeek en français
+    private String analysis;  // réponse Grok en français
 }

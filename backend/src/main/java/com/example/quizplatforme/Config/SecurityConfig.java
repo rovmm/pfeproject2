@@ -90,6 +90,10 @@ public class SecurityConfig {
 
                         // Authentification — public
                         .requestMatchers("/api/auth/**").permitAll()
+                        .requestMatchers("/api/auth/verify-email").permitAll()
+                        .requestMatchers("/api/auth/resend-otp").permitAll()
+                        .requestMatchers("/api/auth/forgot-password").permitAll()
+                        .requestMatchers("/api/auth/reset-password").permitAll()
 
                         // Exécution de code — STUDENT et PROF autorisés
                         // (PROF doit pouvoir utiliser l'éditeur standalone)
@@ -102,11 +106,17 @@ public class SecurityConfig {
                         .requestMatchers("/api/sessions/join/**").hasRole("STUDENT")
                         .requestMatchers(HttpMethod.POST, "/api/sessions/*/submit").hasRole("STUDENT")
                         .requestMatchers(HttpMethod.GET,  "/api/sessions/*/submissions").hasRole("PROF")
+                        .requestMatchers(HttpMethod.POST, "/api/sessions/*/heartbeat").hasRole("STUDENT")
+                        .requestMatchers(HttpMethod.GET,  "/api/sessions/*/presence").hasRole("PROF")
                         .requestMatchers(HttpMethod.POST, "/api/sessions/*/duplicate").hasRole("PROF")
+                        .requestMatchers(HttpMethod.POST, "/api/sessions/*/history/save").hasRole("STUDENT")
+                        .requestMatchers(HttpMethod.GET,  "/api/sessions/*/history").hasRole("PROF")
+                        .requestMatchers(HttpMethod.DELETE, "/api/sessions/*").hasRole("PROF")
 
                         // Quiz endpoints — most-specific first
                         .requestMatchers(HttpMethod.POST, "/api/sessions/*/quiz/create").hasRole("PROF")
                         .requestMatchers(HttpMethod.POST, "/api/sessions/*/quiz/generate-from-pdf").hasRole("PROF")
+                        .requestMatchers(HttpMethod.POST, "/api/sessions/*/quiz/generate-preview").hasRole("PROF")
                         .requestMatchers(HttpMethod.GET,  "/api/sessions/*/quiz/attempts").hasRole("PROF")
                         .requestMatchers(HttpMethod.POST, "/api/sessions/*/quiz/submit").hasRole("STUDENT")
                         .requestMatchers(HttpMethod.GET,  "/api/sessions/*/quiz/leaderboard").authenticated()
@@ -114,7 +124,7 @@ public class SecurityConfig {
 
                         .requestMatchers("/api/sessions/**").authenticated()
 
-                        // PDF — authentifié requis (évite l'abus de l'API Groq sans compte)
+                        // PDF — authentifié requis (évite l'abus de l'API Grok sans compte)
                         .requestMatchers("/api/pdf/**").authenticated()
 
                         // Utilisateurs — /me est pour l'utilisateur connecté, /** est admin
@@ -128,7 +138,20 @@ public class SecurityConfig {
                         .requestMatchers("/api/prof/**").hasRole("PROF")
 
                         // Intelligence artificielle
+                        .requestMatchers(HttpMethod.POST, "/api/ai/chat").hasAnyRole("STUDENT", "PROF")
                         .requestMatchers("/api/ai/**").authenticated()
+
+                        // Drive du professeur — dossiers et fichiers de cours
+                        .requestMatchers(HttpMethod.POST, "/api/drive/folders/**").hasRole("PROF")
+                        .requestMatchers(HttpMethod.PUT, "/api/drive/folders/**").hasRole("PROF")
+                        .requestMatchers(HttpMethod.DELETE, "/api/drive/folders/**").hasRole("PROF")
+                        .requestMatchers(HttpMethod.GET, "/api/drive/folders/**").authenticated()
+                        .requestMatchers(HttpMethod.POST, "/api/drive/files/upload").hasRole("PROF")
+                        .requestMatchers(HttpMethod.POST, "/api/drive/files/*/ai/**").authenticated()
+                        .requestMatchers(HttpMethod.PUT, "/api/drive/files/**").hasRole("PROF")
+                        .requestMatchers(HttpMethod.DELETE, "/api/drive/files/**").hasRole("PROF")
+                        .requestMatchers(HttpMethod.GET, "/api/drive/files/**").authenticated()
+                        .requestMatchers(HttpMethod.GET, "/api/drive/**").authenticated()
 
                         // Tout le reste requiert une authentification
                         .anyRequest().authenticated()
@@ -149,7 +172,8 @@ public class SecurityConfig {
                 "http://localhost:4200",   // Angular dev (ng serve — frontend actuel)
                 "http://localhost:3000",   // production / build React
                 "http://localhost:5173",   // Vite dev (port par défaut)
-                "http://localhost:5174"    // Vite dev (port de secours)
+                "http://localhost:5174",   // Vite dev (port de secours)
+                "http://127.0.0.1:5173"
         ));
         config.setAllowedMethods(List.of(
                 "GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"

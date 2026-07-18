@@ -28,7 +28,7 @@ public class PdfSummaryResponse {
     /** Nom du fichier PDF soumis. */
     private String fileName;
 
-    /** Résumé généré par l'IA Groq. */
+    /** Résumé généré par l'IA Grok. */
     private String summary;
 
     /** Horodatage de génération du résumé. */

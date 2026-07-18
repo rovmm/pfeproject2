@@ -3,8 +3,10 @@ package com.example.quizplatforme.Service.Impl;
 import com.example.quizplatforme.DTO.Request.CodeRequest;
 import com.example.quizplatforme.DTO.Response.CodeResponse;
 import com.example.quizplatforme.Model.ExecutionResult;
+import com.example.quizplatforme.Model.Entity.Session;
 import com.example.quizplatforme.Model.Entity.User;
 import com.example.quizplatforme.Repository.ExecutionResultRepository;
+import com.example.quizplatforme.Repository.SessionRepository;
 import com.example.quizplatforme.Repository.UserRepository;
 import com.example.quizplatforme.Service.CodeExecutionService;
 import lombok.RequiredArgsConstructor;
@@ -42,6 +44,7 @@ public class CodeExecutionServiceImpl implements CodeExecutionService {
     private final DockerSandboxService dockerSandboxService;
     private final ExecutionResultRepository executionResultRepository;
     private final UserRepository userRepository;
+    private final SessionRepository sessionRepository;
 
 
     // ── API publique ───────────────────────────────────────────────────────────
@@ -89,8 +92,13 @@ public class CodeExecutionServiceImpl implements CodeExecutionService {
                 default        -> ExecutionResult.ExecutionStatus.ERROR;
             };
 
+            Session session = request.getSessionId() != null
+                    ? sessionRepository.findById(request.getSessionId()).orElse(null)
+                    : null;
+
             ExecutionResult result = ExecutionResult.builder()
                     .user(user)
+                    .session(session)
                     .language(request.getLanguage())
                     .code(request.getCode())
                     .output(response.getOutput())

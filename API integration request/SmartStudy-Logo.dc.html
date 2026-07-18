@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="">
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;500;600;700;800&amp;family=Inter:wght@400;500;600&amp;display=swap" rel="stylesheet">
+<meta name="design_doc_mode" content="canvas">
+<style>
+  * { box-sizing:border-box; }
+  body { margin:0; background:#f3ecdd; }
+  .card { background:#fbf4e8; border:1px solid #e4e0ef; border-radius:22px; box-shadow:0 24px 54px -34px rgba(43,36,80,0.4); }
+  .badge-id { position:absolute; top:-30px; left:0; font-family:'Sora'; font-weight:700; font-size:13px; color:#1e3a8a; background:#fbf4e8; border:1px solid #ddd7ef; padding:4px 11px; border-radius:999px; }
+  .cap { font-family:'Sora'; font-weight:700; font-size:15px; color:#141427; margin:0; }
+  .cap-sub { font-family:'Inter'; font-size:12.5px; color:#8b869c; margin:2px 0 0; }
+  .swatch { font-family:'Inter'; font-size:11px; color:#8b869c; }
+</style>
+</helmet>
+
+<div style="font-family:'Inter',sans-serif; padding:70px; display:flex; flex-direction:column; gap:56px; width:max-content;">
+
+  <!-- defs shared -->
+  <svg width="0" height="0" style="position:absolute;">
+    <defs>
+      <linearGradient id="ss-grad" x1="0" y1="0" x2="1" y2="1">
+        <stop offset="0" stop-color="#1e3a8a"></stop>
+        <stop offset="1" stop-color="#2c53ab"></stop>
+      </linearGradient>
+      <linearGradient id="ss-grad-v" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0" stop-color="#1e3a8a"></stop>
+        <stop offset="1" stop-color="#2c53ab"></stop>
+      </linearGradient>
+    </defs>
+  </svg>
+
+  <div style="max-width:680px;">
+    <h1 style="font-family:'Sora'; font-weight:800; font-size:30px; letter-spacing:-0.02em; color:#141427; margin:0 0 10px;">SmartStudy — Logo concepts</h1>
+    <p style="font-size:14.5px; line-height:1.6; color:#4a4560; margin:0;">Four creative directions, each built on your brand gradient and Sora wordmark. Every concept scales infinitely (SVG) and works as a standalone app icon. Tell me an id to refine — I'll then export the winner as clean SVG + PNG files.</p>
+  </div>
+
+  <!-- ========== 2a — FINAL: refined Code-S ========== -->
+  <div style="position:relative;">
+    <div class="badge-id" style="color:#89c540; border-color:#cfe6a8;">2a — final</div>
+    <div style="display:flex; flex-direction:column; gap:2px; margin-bottom:16px;">
+      <p class="cap">SmartStudy — “Bracket S”</p>
+      <p class="cap-sub">Bold monoline S wrapped in code chevrons ‹ › with a smart-spark accent. Unique, ownable, scales to a favicon.</p>
+    </div>
+
+    <div class="card" style="width:820px; overflow:hidden;">
+      <!-- hero row: big tile + light lockup -->
+      <div style="display:flex; align-items:center; gap:54px; padding:56px 60px; border-bottom:1px solid #f0eef6;">
+        <!-- big app icon -->
+        <svg width="150" height="150" viewBox="0 0 120 120" fill="none" style="flex:none;">
+          <rect x="2" y="2" width="116" height="116" rx="32" fill="url(#ss-grad)"></rect>
+          <path d="M28 44 L18 60 L28 76" stroke="#fff" stroke-width="7" stroke-linecap="round" stroke-linejoin="round" opacity="0.5"></path>
+          <path d="M92 44 L102 60 L92 76" stroke="#fff" stroke-width="7" stroke-linecap="round" stroke-linejoin="round" opacity="0.5"></path>
+          <path d="M78 46 C78 37 67 34 57 34 C45 34 39 40 39 49 C39 65 82 57 82 74 C82 83 70 86 58 86 C48 86 41 83 37 77" stroke="#fff" stroke-width="10.5" stroke-linecap="round" stroke-linejoin="round"></path>
+          <circle cx="88" cy="34" r="6.5" fill="#89c540"></circle>
+        </svg>
+        <!-- horizontal lockup -->
+        <div style="display:flex; flex-direction:column; gap:12px;">
+          <div style="font-family:'Sora'; font-weight:800; font-size:46px; letter-spacing:-0.03em; color:#141427; line-height:1;">Smart<span style="color:#1e3a8a;">Study</span></div>
+          <div style="font-family:'Inter'; font-weight:500; font-size:14px; letter-spacing:0.28em; text-transform:uppercase; color:#8b869c;">Learn · Quiz · Level up</div>
+        </div>
+      </div>
+
+      <!-- variants row -->
+      <div style="display:flex;">
+        <!-- on light, small -->
+        <div style="flex:1; display:flex; align-items:center; justify-content:center; gap:14px; padding:34px; border-right:1px solid #f0eef6;">
+          <svg width="42" height="42" viewBox="0 0 120 120" fill="none">
+            <rect x="2" y="2" width="116" height="116" rx="32" fill="url(#ss-grad)"></rect>
+            <path d="M28 44 L18 60 L28 76" stroke="#fff" stroke-width="7" stroke-linecap="round" stroke-linejoin="round" opacity="0.5"></path>
+            <path d="M92 44 L102 60 L92 76" stroke="#fff" stroke-width="7" stroke-linecap="round" stroke-linejoin="round" opacity="0.5"></path>
+            <path d="M78 46 C78 37 67 34 57 34 C45 34 39 40 39 49 C39 65 82 57 82 74 C82 83 70 86 58 86 C48 86 41 83 37 77" stroke="#fff" stroke-width="10.5" stroke-linecap="round" stroke-linejoin="round"></path>
+            <circle cx="88" cy="34" r="6.5" fill="#89c540"></circle>
+          </svg>
+          <div style="font-family:'Sora'; font-weight:800; font-size:22px; letter-spacing:-0.02em; color:#141427;">Smart<span style="color:#1e3a8a;">Study</span></div>
+        </div>
+        <!-- dark -->
+        <div style="flex:1; display:flex; align-items:center; justify-content:center; gap:14px; padding:34px; background:#141427;">
+          <svg width="42" height="42" viewBox="0 0 120 120" fill="none">
+            <rect x="2" y="2" width="116" height="116" rx="32" fill="url(#ss-grad)"></rect>
+            <path d="M28 44 L18 60 L28 76" stroke="#fff" stroke-width="7" stroke-linecap="round" stroke-linejoin="round" opacity="0.5"></path>
+            <path d="M92 44 L102 60 L92 76" stroke="#fff" stroke-width="7" stroke-linecap="round" stroke-linejoin="round" opacity="0.5"></path>
+            <path d="M78 46 C78 37 67 34 57 34 C45 34 39 40 39 49 C39 65 82 57 82 74 C82 83 70 86 58 86 C48 86 41 83 37 77" stroke="#fff" stroke-width="10.5" stroke-linecap="round" stroke-linejoin="round"></path>
+            <circle cx="88" cy="34" r="6.5" fill="#89c540"></circle>
+          </svg>
+          <div style="font-family:'Sora'; font-weight:800; font-size:22px; letter-spacing:-0.02em; color:#fff;">Smart<span style="color:#b9a8ff;">Study</span></div>
+        </div>
+        <!-- mono / favicon -->
+        <div style="flex:none; width:150px; display:flex; align-items:center; justify-content:center; padding:34px; background:#eef1f8;">
+          <svg width="52" height="52" viewBox="0 0 120 120" fill="none">
+            <path d="M28 44 L18 60 L28 76" stroke="#1e3a8a" stroke-width="7" stroke-linecap="round" stroke-linejoin="round" opacity="0.45"></path>
+            <path d="M92 44 L102 60 L92 76" stroke="#1e3a8a" stroke-width="7" stroke-linecap="round" stroke-linejoin="round" opacity="0.45"></path>
+            <path d="M78 46 C78 37 67 34 57 34 C45 34 39 40 39 49 C39 65 82 57 82 74 C82 83 70 86 58 86 C48 86 41 83 37 77" stroke="#1e3a8a" stroke-width="10.5" stroke-linecap="round" stroke-linejoin="round"></path>
+          </svg>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div style="display:flex; flex-wrap:wrap; gap:56px;">
+
+    <!-- ========== 1a — Code-chevron S ========== -->
+    <div style="position:relative;">
+      <div class="badge-id">1a</div>
+      <div style="display:flex; flex-direction:column; gap:2px; margin-bottom:14px;"><p class="cap">Concept A — “Code S”</p><p class="cap-sub">S built from two code chevrons ‹ ›</p></div>
+      <div class="card" style="width:460px; overflow:hidden;">
+        <!-- icon on light -->
+        <div style="display:flex; align-items:center; justify-content:center; gap:34px; padding:44px; border-bottom:1px solid #f0eef6;">
+          <svg width="96" height="96" viewBox="0 0 96 96" fill="none">
+            <rect x="4" y="4" width="88" height="88" rx="24" fill="url(#ss-grad)"></rect>
+            <path d="M40 30 L26 48 L40 66" stroke="#fff" stroke-width="7" stroke-linecap="round" stroke-linejoin="round"></path>
+            <path d="M56 30 L70 48 L56 66" stroke="#fff" stroke-width="7" stroke-linecap="round" stroke-linejoin="round" opacity="0.55"></path>
+            <path d="M60 34 C48 34 44 43 48 48 C52 53 48 62 36 62" stroke="#fff" stroke-width="7" stroke-linecap="round" stroke-linejoin="round"></path>
+          </svg>
+          <!-- horizontal lockup -->
+          <div style="display:flex; align-items:center; gap:13px;">
+            <svg width="46" height="46" viewBox="0 0 96 96" fill="none">
+              <rect x="4" y="4" width="88" height="88" rx="24" fill="url(#ss-grad)"></rect>
+              <path d="M40 30 L26 48 L40 66" stroke="#fff" stroke-width="7" stroke-linecap="round" stroke-linejoin="round"></path>
+              <path d="M56 30 L70 48 L56 66" stroke="#fff" stroke-width="7" stroke-linecap="round" stroke-linejoin="round" opacity="0.55"></path>
+              <path d="M60 34 C48 34 44 43 48 48 C52 53 48 62 36 62" stroke="#fff" stroke-width="7" stroke-linecap="round" stroke-linejoin="round"></path>
+            </svg>
+            <div style="font-family:'Sora'; font-weight:800; font-size:26px; letter-spacing:-0.02em; color:#141427; line-height:1;">Smart<span style="color:#1e3a8a;">Study</span></div>
+          </div>
+        </div>
+        <!-- dark -->
+        <div style="display:flex; align-items:center; gap:13px; justify-content:center; padding:30px; background:#141427;">
+          <svg width="40" height="40" viewBox="0 0 96 96" fill="none">
+            <rect x="4" y="4" width="88" height="88" rx="24" fill="url(#ss-grad)"></rect>
+            <path d="M40 30 L26 48 L40 66" stroke="#fff" stroke-width="7" stroke-linecap="round" stroke-linejoin="round"></path>
+            <path d="M56 30 L70 48 L56 66" stroke="#fff" stroke-width="7" stroke-linecap="round" stroke-linejoin="round" opacity="0.55"></path>
+            <path d="M60 34 C48 34 44 43 48 48 C52 53 48 62 36 62" stroke="#fff" stroke-width="7" stroke-linecap="round" stroke-linejoin="round"></path>
+          </svg>
+          <div style="font-family:'Sora'; font-weight:800; font-size:22px; letter-spacing:-0.02em; color:#fff;">Smart<span style="color:#b9a8ff;">Study</span></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ========== 1b — Graduation spark ========== -->
+    <div style="position:relative;">
+      <div class="badge-id">1b</div>
+      <div style="display:flex; flex-direction:column; gap:2px; margin-bottom:14px;"><p class="cap">Concept B — “Grad Spark”</p><p class="cap-sub">Graduation cap + AI spark tassel</p></div>
+      <div class="card" style="width:460px; overflow:hidden;">
+        <div style="display:flex; align-items:center; justify-content:center; gap:34px; padding:44px; border-bottom:1px solid #f0eef6;">
+          <svg width="96" height="96" viewBox="0 0 96 96" fill="none">
+            </svg><div style="box-sizing: border-box; display: flex; flex-direction: column; align-items: center; justify-content: center; width: 96px; height: 96px; background-color: #b6b0a7; border-radius: 50%"></div><rect x="4" y="4" width="88" height="88" rx="24" fill="#eef4dd"></rect>
+            <svg width="46" height="46" viewBox="0 0 96 96" fill="none">
+              <rect x="4" y="4" width="88" height="88" rx="24" fill="#eef4dd"></rect>
+              <path d="M48 26 L74 38 L48 50 L22 38 Z" fill="url(#ss-grad)"></path>
+              <path d="M32 44 V56 C32 62 64 62 64 56 V44" stroke="#2c53ab" stroke-width="6" stroke-linecap="round"></path>
+              <path d="M74 38 V54" stroke="#1e3a8a" stroke-width="4.5" stroke-linecap="round"></path>
+              <circle cx="74" cy="55" r="3.4" fill="#89c540"></circle>
+            </svg><path d="M48 26 L74 38 L48 50 L22 38 Z" fill="url(#ss-grad)"></path>
+            <path d="M32 44 V56 C32 62 64 62 64 56 V44" stroke="#2c53ab" stroke-width="6" stroke-linecap="round"></path>
+            <path d="M74 38 V54" stroke="#1e3a8a" stroke-width="4.5" stroke-linecap="round"></path>
+            <path d="M74 55 l3 6 -3 -1 -3 1 z" fill="#89c540"></path>
+            <circle cx="74" cy="54" r="3" fill="#89c540"></circle>
+          
+          <div style="display:flex; align-items:center; gap:13px;">
+            
+            <div style="font-family:'Sora'; font-weight:800; font-size:26px; letter-spacing:-0.02em; color:#141427; line-height:1;">Smart<span style="color:#1e3a8a;">Study</span></div>
+          </div>
+        </div>
+        <div style="display:flex; align-items:center; gap:13px; justify-content:center; padding:30px; background:#141427;">
+          <svg width="40" height="40" viewBox="0 0 96 96" fill="none">
+            <rect x="4" y="4" width="88" height="88" rx="24" fill="rgba(255,255,255,0.08)"></rect>
+            <path d="M48 26 L74 38 L48 50 L22 38 Z" fill="url(#ss-grad-v)"></path>
+            <path d="M32 44 V56 C32 62 64 62 64 56 V44" stroke="#b9a8ff" stroke-width="6" stroke-linecap="round"></path>
+            <path d="M74 38 V54" stroke="#b9a8ff" stroke-width="4.5" stroke-linecap="round"></path>
+            <circle cx="74" cy="55" r="3.4" fill="#89c540"></circle>
+          </svg>
+          <div style="font-family:'Sora'; font-weight:800; font-size:22px; letter-spacing:-0.02em; color:#fff;">Smart<span style="color:#b9a8ff;">Study</span></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ========== 1c — Quiz bubble ========== -->
+    <div style="position:relative;">
+      <div class="badge-id">1c</div>
+      <div style="display:flex; flex-direction:column; gap:2px; margin-bottom:14px;"><p class="cap">Concept C — “Quiz Bubble”</p><p class="cap-sub">Speech bubble + check = live quiz</p></div>
+      <div class="card" style="width:460px; overflow:hidden;">
+        <div style="display:flex; align-items:center; justify-content:center; gap:34px; padding:44px; border-bottom:1px solid #f0eef6;">
+          <svg width="96" height="96" viewBox="0 0 96 96" fill="none">
+            <path d="M24 20 H72 C78 20 82 24 82 30 V56 C82 62 78 66 72 66 H50 L36 78 V66 H24 C18 66 14 62 14 56 V30 C14 24 18 20 24 20 Z" fill="url(#ss-grad)"></path>
+            <path d="M34 47 L44 57 L64 33" stroke="#fff" stroke-width="7.5" stroke-linecap="round" stroke-linejoin="round"></path>
+          </svg>
+          <div style="display:flex; align-items:center; gap:13px;">
+            <svg width="46" height="46" viewBox="0 0 96 96" fill="none">
+              <path d="M24 20 H72 C78 20 82 24 82 30 V56 C82 62 78 66 72 66 H50 L36 78 V66 H24 C18 66 14 62 14 56 V30 C14 24 18 20 24 20 Z" fill="url(#ss-grad)"></path>
+              <path d="M34 47 L44 57 L64 33" stroke="#fff" stroke-width="7.5" stroke-linecap="round" stroke-linejoin="round"></path>
+            </svg>
+            <div style="font-family:'Sora'; font-weight:800; font-size:26px; letter-spacing:-0.02em; color:#141427; line-height:1;">Smart<span style="color:#1e3a8a;">Study</span></div>
+          </div>
+        </div>
+        <div style="display:flex; align-items:center; gap:13px; justify-content:center; padding:30px; background:#141427;">
+          <svg width="40" height="40" viewBox="0 0 96 96" fill="none">
+            <path d="M24 20 H72 C78 20 82 24 82 30 V56 C82 62 78 66 72 66 H50 L36 78 V66 H24 C18 66 14 62 14 56 V30 C14 24 18 20 24 20 Z" fill="url(#ss-grad-v)"></path>
+            <path d="M34 47 L44 57 L64 33" stroke="#fff" stroke-width="7.5" stroke-linecap="round" stroke-linejoin="round"></path>
+          </svg>
+          <div style="font-family:'Sora'; font-weight:800; font-size:22px; letter-spacing:-0.02em; color:#fff;">Smart<span style="color:#b9a8ff;">Study</span></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ========== 1d — Monogram book/cursor ========== -->
+    <div style="position:relative;">
+      <div class="badge-id">1d</div>
+      <div style="display:flex; flex-direction:column; gap:2px; margin-bottom:14px;"><p class="cap">Concept D — “S Cursor”</p><p class="cap-sub">Bold S monogram with a blinking caret</p></div>
+      <div class="card" style="width:460px; overflow:hidden;">
+        <div style="display:flex; align-items:center; justify-content:center; gap:34px; padding:44px; border-bottom:1px solid #f0eef6;">
+          <svg width="96" height="96" viewBox="0 0 96 96" fill="none">
+            <rect x="4" y="4" width="88" height="88" rx="26" fill="url(#ss-grad)"></rect>
+            <path d="M62 34 C62 28 52 26 46 26 C38 26 33 30 33 37 C33 51 63 44 63 59 C63 66 56 70 47 70 C40 70 33 67 31 62" stroke="#fff" stroke-width="8" stroke-linecap="round" stroke-linejoin="round"></path>
+            <rect x="66" y="52" width="6" height="20" rx="3" fill="#89c540"></rect>
+          </svg>
+          <div style="display:flex; align-items:center; gap:13px;">
+            <svg width="46" height="46" viewBox="0 0 96 96" fill="none">
+              <rect x="4" y="4" width="88" height="88" rx="26" fill="url(#ss-grad)"></rect>
+              <path d="M62 34 C62 28 52 26 46 26 C38 26 33 30 33 37 C33 51 63 44 63 59 C63 66 56 70 47 70 C40 70 33 67 31 62" stroke="#fff" stroke-width="8" stroke-linecap="round" stroke-linejoin="round"></path>
+              <rect x="66" y="52" width="6" height="20" rx="3" fill="#89c540"></rect>
+            </svg>
+            <div style="font-family:'Sora'; font-weight:800; font-size:26px; letter-spacing:-0.02em; color:#141427; line-height:1;">Smart<span style="color:#1e3a8a;">Study</span></div>
+          </div>
+        </div>
+        <div style="display:flex; align-items:center; gap:13px; justify-content:center; padding:30px; background:#141427;">
+          <svg width="40" height="40" viewBox="0 0 96 96" fill="none">
+            <rect x="4" y="4" width="88" height="88" rx="26" fill="url(#ss-grad)"></rect>
+            <path d="M62 34 C62 28 52 26 46 26 C38 26 33 30 33 37 C33 51 63 44 63 59 C63 66 56 70 47 70 C40 70 33 67 31 62" stroke="#fff" stroke-width="8" stroke-linecap="round" stroke-linejoin="round"></path>
+            <rect x="66" y="52" width="6" height="20" rx="3" fill="#89c540"></rect>
+          </svg>
+          <div style="font-family:'Sora'; font-weight:800; font-size:22px; letter-spacing:-0.02em; color:#fff;">Smart<span style="color:#b9a8ff;">Study</span></div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+</x-dc>
+</body>
+</html>
